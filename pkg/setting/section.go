@@ -30,6 +30,16 @@ type DatabaseSettingS struct {
 	MaxOpenConns int
 }
 
+type EmailSettingS struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	IsSSL    bool
+	From     string
+	To       []string
+}
+
 // 讀取設定檔區段，並存入指定結構體的方法
 func (s *Setting) ReadSection(k string, v interface{}) error {
 	err := s.vp.UnmarshalKey(k, v)

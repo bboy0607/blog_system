@@ -34,7 +34,7 @@ func (u User) Create(c *gin.Context) {
 		return
 	}
 
-	response.ToResponse(gin.H{})
+	response.ToResponse(gin.H{"message": "使用者創建成功"})
 	return
 }
 

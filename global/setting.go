@@ -9,5 +9,6 @@ var (
 	ServerSetting   *setting.ServerSettingS
 	AppSetting      *setting.AppSettingS
 	DatabaseSetting *setting.DatabaseSettingS
+	EmailSetting    *setting.EmailSettingS
 	Logger          *logger.Logger
 )
