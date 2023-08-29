@@ -29,7 +29,6 @@ func init() {
 }
 
 func main() {
-	global.Logger.Infof("%s: test-log/%s", "hank", "membership service")
 	router := routers.NewRoute()
 	s := &http.Server{
 		Addr:           ":" + global.ServerSetting.HttpPort,
