@@ -25,3 +25,13 @@ func (d *Dao) CreateUser(username string, password string, email string, state u
 
 	return user.Create(d.engine)
 }
+
+func (d *Dao) ActivateUser(username string, modifiedBy string) error {
+	user := model.User{
+		Username: username,
+		State:    1,
+		Model:    &model.Model{ModifiedBy: modifiedBy},
+	}
+
+	return user.Activate(d.engine)
+}

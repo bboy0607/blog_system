@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-
 	"github.com/jinzhu/gorm"
 )
 
@@ -19,8 +17,12 @@ func (m User) TableName() string {
 	return "membership"
 }
 
-// 註冊用戶
-func (m User) Create(db *gorm.DB) error {
-	fmt.Println(m)
-	return db.Create(&m).Error
+// 創建用戶資訊
+func (u User) Create(db *gorm.DB) error {
+	return db.Create(&u).Error
+}
+
+func (u User) Activate(db *gorm.DB) error {
+	db = db.Model(&User{}).Where("username = ? AND is_del = ?", u.Username, 0)
+	return db.Update(&u).Error
 }

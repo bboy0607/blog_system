@@ -4,6 +4,7 @@ import (
 	"log"
 	"membership_system/global"
 	"membership_system/internal/model"
+	"membership_system/internal/redis"
 	"membership_system/internal/routers"
 	"membership_system/pkg/logger"
 	"membership_system/pkg/setting"
@@ -26,12 +27,16 @@ func init() {
 	if err != nil {
 		log.Fatalf("init.setupLogger err: %v", err)
 	}
+	err = setupRedis()
+	if err != nil {
+		log.Fatalf("init.setupRedis err: %v", err)
+	}
 }
 
 func main() {
 	router := routers.NewRoute()
 	s := &http.Server{
-		Addr:           ":" + global.ServerSetting.HttpPort,
+		Addr:           global.ServerSetting.ListenAddr + ":" + global.ServerSetting.HttpPort,
 		Handler:        router,
 		ReadTimeout:    global.ServerSetting.ReadTimeout,
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
@@ -61,6 +66,10 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
+	err = setting.ReadSection("Redis", &global.RedisSetting)
+	if err != nil {
+		return err
+	}
 
 	global.ServerSetting.ReadTimeout *= time.Second
 	global.ServerSetting.WriteTimeout *= time.Second
@@ -70,6 +79,16 @@ func setupSetting() error {
 func setupDBEngine() error {
 	var err error
 	global.DBEngine, err = model.NewDBEngine(global.DatabaseSetting)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupRedis() error {
+	var err error
+	global.Redis, err = redis.NewRedisClient()
 	if err != nil {
 		return err
 	}

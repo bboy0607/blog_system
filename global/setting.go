@@ -10,5 +10,6 @@ var (
 	AppSetting      *setting.AppSettingS
 	DatabaseSetting *setting.DatabaseSettingS
 	EmailSetting    *setting.EmailSettingS
+	RedisSetting    *setting.RedisSettingS
 	Logger          *logger.Logger
 )

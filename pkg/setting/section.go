@@ -4,6 +4,7 @@ import "time"
 
 type ServerSettingS struct {
 	RunMode      string
+	ListenAddr   string
 	HttpPort     string
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
@@ -38,6 +39,11 @@ type EmailSettingS struct {
 	IsSSL    bool
 	From     string
 	To       []string
+}
+
+type RedisSettingS struct {
+	Host string
+	Port string
 }
 
 // 讀取設定檔區段，並存入指定結構體的方法
