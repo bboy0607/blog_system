@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"membership_system/global"
 	"membership_system/pkg/email"
 	"membership_system/pkg/util"
@@ -26,6 +26,12 @@ type CreateEmailConfirmUserRequest struct {
 
 type ActivateUserRequest struct {
 	Token string `form:"token" binding:"required"`
+}
+
+type ResetUserPasswordRequest struct {
+	Username           string
+	NewPassword        string `form:"new_password" binding:"min=3,max=6,required"`
+	NewConfirmPassword string `form:"confirm_new_password" binding:"min=3,max=6,required"`
 }
 
 func (svc Service) CreateUser(param *CreateUserRequest) error {
@@ -59,9 +65,15 @@ func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) 
 func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
 	var ctx = context.Background()
 	username, err := global.Redis.Get(ctx, param.Token).Result()
-	fmt.Print(username)
 	if err != nil {
 		return err
 	}
 	return svc.dao.ActivateUser(username, "backend_system")
+}
+
+func (svc Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
+	if param.NewPassword != param.NewConfirmPassword {
+		return errors.New("新密碼與確認密碼不符合")
+	}
+	return svc.dao.ResetUserPassword(param.Username, param.NewPassword, "backend_system")
 }

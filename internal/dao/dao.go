@@ -35,3 +35,13 @@ func (d *Dao) ActivateUser(username string, modifiedBy string) error {
 
 	return user.Activate(d.engine)
 }
+
+func (d *Dao) ResetUserPassword(username string, newPassword string, modifiedBy string) error {
+	user := model.User{
+		Username: username,
+		Password: newPassword,
+		Model:    &model.Model{ModifiedBy: modifiedBy},
+	}
+
+	return user.ResetUserPassword(d.engine)
+}

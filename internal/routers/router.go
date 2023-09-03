@@ -1,7 +1,9 @@
 package routers
 
 import (
+	"membership_system/internal/middleware"
 	v1 "membership_system/internal/routers/api/v1"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,14 +12,16 @@ func NewRoute() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.LoadHTMLGlob("static/*.html")
 
 	user := v1.NewUser()
 	apiv1 := r.Group("/api/v1")
 	{
 		//註冊會員
 		apiv1.POST("/user", user.CreateEmailConfirmUser)
-		apiv1.GET("/user/verify-email/:token", user.ActivateEmailConfirmUser)
-
+		apiv1.GET("/user/verify_email/:token", user.ActivateEmailConfirmUser)
+		apiv1.GET("user/reset_password/:token", middleware.ValidatePasswordResetToken(), func(c *gin.Context) { c.HTML(http.StatusOK, "reset_password.html", nil) })
+		apiv1.POST("/user/reset_password/:token", middleware.ValidatePasswordResetToken(), user.ResetPassword)
 	}
 
 	return r

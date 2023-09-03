@@ -26,3 +26,8 @@ func (u User) Activate(db *gorm.DB) error {
 	db = db.Model(&User{}).Where("username = ? AND is_del = ?", u.Username, 0)
 	return db.Update(&u).Error
 }
+
+func (u User) ResetUserPassword(db *gorm.DB) error {
+	db = db.Model(&User{}).Where("username = ? AND is_del = ?", u.Username, 0)
+	return db.Update(&u).Error
+}
