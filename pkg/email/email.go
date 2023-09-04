@@ -44,7 +44,26 @@ func (e *Email) SendConfirmationEmail(to []string, subject string, token string)
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", to...)
 
-	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/user/verify-email/%v",
+	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/user/verify_email/%v",
+		global.ServerSetting.ListenAddr,
+		global.ServerSetting.HttpPort,
+		token,
+	)
+	m.SetBody("text/html", confirmUrl)
+
+	dialer := gomail.NewDialer(e.Host, e.Port, e.UserName, e.Password)
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: e.IsSSL}
+	return dialer.DialAndSend(m)
+}
+
+// 發送重置密碼郵件
+func (e *Email) SendResetPasswordEmail(to []string, subject string, token string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", e.From)
+	m.SetHeader("To", to...)
+	m.SetHeader("Subject", to...)
+
+	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/user/reset_password/%v",
 		global.ServerSetting.ListenAddr,
 		global.ServerSetting.HttpPort,
 		token,

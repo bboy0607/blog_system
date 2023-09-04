@@ -36,12 +36,28 @@ func (d *Dao) ActivateUser(username string, modifiedBy string) error {
 	return user.Activate(d.engine)
 }
 
-func (d *Dao) ResetUserPassword(username string, newPassword string, modifiedBy string) error {
+func (d *Dao) CheckEmail(email string) error {
 	user := model.User{
-		Username: username,
+		Email: email,
+	}
+	return user.CheckEmail(d.engine)
+}
+
+func (d *Dao) ResetUserPassword(email string, newPassword string, modifiedBy string) error {
+	user := model.User{
+		Email:    email,
 		Password: newPassword,
 		Model:    &model.Model{ModifiedBy: modifiedBy},
 	}
 
 	return user.ResetUserPassword(d.engine)
+}
+
+func (d *Dao) ValidateUserCredentials(username string, password string) error {
+	user := model.User{
+		Username: username,
+		Password: password,
+	}
+
+	return user.ValidateUserCredentials(d.engine)
 }

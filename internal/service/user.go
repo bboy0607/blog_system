@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"membership_system/global"
 	"membership_system/pkg/email"
 	"membership_system/pkg/util"
@@ -18,20 +19,28 @@ type CreateUserRequest struct {
 }
 
 type CreateEmailConfirmUserRequest struct {
-	Username  string `form:"username" binding:"required,min=6,max=100"`
-	Password  string `form:"password" binding:"required,min=6,max=100"`
-	Email     string `form:"email" binding:"required,max=100,email"`
-	CreatedBy string `form:"created_by" binding:"required,min=3,max=100"`
+	Username string `form:"username" binding:"required,min=6,max=100"`
+	Password string `form:"password" binding:"required,min=6,max=100"`
+	Email    string `form:"email" binding:"required,max=100,email"`
 }
 
 type ActivateUserRequest struct {
 	Token string `form:"token" binding:"required"`
 }
 
+type SendResetPasswordEmail struct {
+	Email string `form:"email" binding:"email,required"`
+}
+
 type ResetUserPasswordRequest struct {
-	Username           string
-	NewPassword        string `form:"new_password" binding:"min=3,max=6,required"`
-	NewConfirmPassword string `form:"confirm_new_password" binding:"min=3,max=6,required"`
+	Email              string
+	NewPassword        string `form:"new_password" binding:"min=3,max=100,required"`
+	NewConfirmPassword string `form:"confirm_new_password" binding:"min=3,max=100,required"`
+}
+
+type UserLoginRequest struct {
+	Username string `form:"username" binding:"min=3,max=100,required"`
+	Password string `form:"password" binding:"min=3,max=100,required"`
 }
 
 func (svc Service) CreateUser(param *CreateUserRequest) error {
@@ -39,12 +48,18 @@ func (svc Service) CreateUser(param *CreateUserRequest) error {
 }
 
 func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) error {
-	var ctx = context.Background()
-	token := util.GenerateSecureToken(10)
-	err := global.Redis.Set(ctx, token, param.Username, 10*time.Minute).Err()
+	err := svc.dao.CreateUser(param.Username, param.Password, param.Email, 0, "backend_system")
 	if err != nil {
 		return err
 	}
+
+	var ctx = context.Background()
+	token := util.GenerateSecureToken(10)
+	err = global.Redis.Set(ctx, token, param.Username, 10*time.Minute).Err()
+	if err != nil {
+		return err
+	}
+
 	email := email.NewEmail(&email.SMTPInfo{
 		Host:     global.EmailSetting.Host,
 		Port:     global.EmailSetting.Port,
@@ -59,7 +74,7 @@ func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) 
 		return err
 	}
 
-	return svc.dao.CreateUser(param.Username, param.Password, param.Email, 0, param.CreatedBy)
+	return nil
 }
 
 func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
@@ -71,9 +86,48 @@ func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
 	return svc.dao.ActivateUser(username, "backend_system")
 }
 
+func (svc Service) SendResetPasswordEmail(param *SendResetPasswordEmail) error {
+	if err := svc.dao.CheckEmail(param.Email); err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	resetPasswordToken := util.GenerateSecureToken(10)
+	key := fmt.Sprintf("resetPasswordToken:%v", resetPasswordToken)
+	global.Redis.Set(ctx, key, param.Email, 0)
+
+	email := email.NewEmail(&email.SMTPInfo{
+		Host:     global.EmailSetting.Host,
+		Port:     global.EmailSetting.Port,
+		IsSSL:    global.EmailSetting.IsSSL,
+		UserName: global.EmailSetting.Username,
+		Password: global.EmailSetting.Password,
+		From:     global.EmailSetting.From,
+	})
+	to := []string{param.Email}
+	err := email.SendResetPasswordEmail(to, "email驗證郵件", resetPasswordToken)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (svc Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
 	if param.NewPassword != param.NewConfirmPassword {
 		return errors.New("新密碼與確認密碼不符合")
 	}
-	return svc.dao.ResetUserPassword(param.Username, param.NewPassword, "backend_system")
+	return svc.dao.ResetUserPassword(param.Email, param.NewPassword, "backend_system")
+}
+
+func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err error) {
+	err = svc.dao.ValidateUserCredentials(param.Username, param.Password)
+	if err != nil {
+		return "", err
+	}
+
+	ctx := context.Background()
+	loginToken = util.GenerateSecureToken(10)
+	key := fmt.Sprintf("%v:loginToken", param.Username)
+	global.Redis.Set(ctx, key, loginToken, 0)
+	return loginToken, nil
 }

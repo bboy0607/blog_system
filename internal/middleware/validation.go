@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"membership_system/global"
 	"membership_system/pkg/app"
 	"membership_system/pkg/errcode"
@@ -19,14 +20,15 @@ func ValidatePasswordResetToken() gin.HandlerFunc {
 			c.AbortWithStatus(http.StatusNotFound)
 		}
 
-		username, err := global.Redis.Get(ctx, token).Result()
+		key := fmt.Sprintf("resetPasswordToken:%v", token)
+		email, err := global.Redis.Get(ctx, key).Result()
 		if err != nil {
 			errRsp := errcode.InvalidParms.WithDetails(err.Error())
 			response.ToErrorResponse(errRsp)
 			c.Abort()
 		}
 		c.Set("token", token)
-		c.Set("username", username)
+		c.Set("email", email)
 		c.Next()
 	}
 
