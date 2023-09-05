@@ -20,6 +20,9 @@ func NewRoute() *gin.Engine {
 		//使用者登入
 		apiv1.POST("/user/login", user.Login)
 
+		//使用者登出
+		apiv1.GET("/user/logout", user.Logout)
+
 		//註冊會員
 		apiv1.POST("/user/register", user.CreateEmailConfirmUser)
 		apiv1.GET("/user/verify_email/:token", user.ActivateEmailConfirmUser)

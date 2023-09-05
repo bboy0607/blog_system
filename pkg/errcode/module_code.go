@@ -6,5 +6,6 @@ var (
 	ErrorEmailNotFound      = NewErrorCode(2001004, "查無email")
 	ErrorUserNotActivated   = NewErrorCode(2001005, "使用者未啟用")
 	ErrorPasswordNotCorrect = NewErrorCode(2001006, "密碼錯誤")
+	ErrorUserLoggedOut      = NewErrorCode(2001007, "使用者已登出")
 	ErrorUnknown            = NewErrorCode(2001999, "未知錯誤")
 )

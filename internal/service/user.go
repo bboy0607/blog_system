@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"membership_system/global"
 	"membership_system/pkg/email"
+	"membership_system/pkg/errcode"
 	"membership_system/pkg/util"
 	"time"
 )
@@ -41,6 +42,10 @@ type ResetUserPasswordRequest struct {
 type UserLoginRequest struct {
 	Username string `form:"username" binding:"min=3,max=100,required"`
 	Password string `form:"password" binding:"min=3,max=100,required"`
+}
+
+type UserLogoutRequest struct {
+	Username string `form:"username" binding:"min=3,max=100,required"`
 }
 
 func (svc Service) CreateUser(param *CreateUserRequest) error {
@@ -127,7 +132,20 @@ func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err er
 
 	ctx := context.Background()
 	loginToken = util.GenerateSecureToken(10)
-	key := fmt.Sprintf("%v:loginToken", param.Username)
+	key := fmt.Sprintf("loginToken:%v", param.Username)
 	global.Redis.Set(ctx, key, loginToken, 0)
 	return loginToken, nil
+}
+
+func (svc Service) UserLogout(param *UserLogoutRequest) error {
+	ctx := context.Background()
+	key := fmt.Sprintf("loginToken:%v", param.Username)
+	count, err := global.Redis.Del(ctx, key).Result()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return errcode.ErrorUserLoggedOut
+	}
+	return nil
 }

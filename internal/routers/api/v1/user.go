@@ -144,6 +144,7 @@ func (u User) ResetPassword(c *gin.Context) {
 	return
 }
 
+// 登入
 func (u User) Login(c *gin.Context) {
 	param := service.UserLoginRequest{}
 	response := app.NewResponse(c)
@@ -173,5 +174,37 @@ func (u User) Login(c *gin.Context) {
 	}
 
 	response.ToResponse(gin.H{"message": "使用者登入成功", "login_token": loginToken})
+	return
+}
+
+//登出
+
+func (u User) Logout(c *gin.Context) {
+	param := service.UserLogoutRequest{}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
+	svc := service.New(c.Request.Context())
+	err = svc.UserLogout(&param)
+	if err != nil {
+		switch err {
+		case errcode.ErrorUserLoggedOut:
+			global.Logger.Errorf("svc.UserLogout err: %v", err)
+			response.ToErrorResponse(errcode.ErrorUserLoggedOut)
+			return
+		default:
+			global.Logger.Errorf("svc.UserLogout err: %v", err)
+			response.ToErrorResponse(errcode.ErrorUnknown.WithDetails(err.Error()))
+			return
+		}
+
+	}
+
+	response.ToResponse(gin.H{"message": "使用者成功登出"})
 	return
 }
