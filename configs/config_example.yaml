@@ -1,0 +1,63 @@
+# Configuration for the server
+Server: 
+  # Run mode: "debug" or "release"
+  RunMode: release
+  # Address to listen on
+  ListenAddr: 127.0.0.1
+  # HTTP port to listen on
+  HttpPort: 8080
+  # Read timeout for incoming requests
+  ReadTimeout: 60
+  # Write timeout for outgoing responses
+  WriteTimeout: 60
+
+# Configuration for the application
+App:
+  # Default page size for pagination
+  DefaultPageSize: 10
+  # Maximum page size for pagination
+  MaxPageSize: 100
+  # Path to save log files
+  LogSavePath: storage/logs
+  # Log file name
+  LogFileName: app
+  # Log file extension
+  LogFileExt: .log
+
+# Configuration for the database
+Database:
+  # Type of database (e.g., "mysql", "postgres")
+  DBType: mysql
+  # Username for database connection
+  Username: 
+  # Password for database connection
+  Password: 
+  # Host of the database server
+  Host: 
+  # Name of the database
+  DBName: 
+  # Prefix for table names
+  TablePrefix: 
+  # Character set for the database
+  Charset: 
+  # Parse time option for database connection
+  ParseTime: 
+  # Maximum idle connections
+  MaxIdleConns: 
+  # Maximum open connections
+  MaxOpenConns: 
+
+#SMTP資訊
+Email:
+  Host: 
+  Port: 
+  UserName: 
+  Password: 
+  IsSSL: 
+  From: 
+  To: 
+
+#Redis資訊
+Redis:
+  Host: 
+  Port: 
