@@ -26,6 +26,23 @@ func (d *Dao) CreateUser(username string, password string, email string, state u
 	return user.Create(d.engine)
 }
 
+func (d *Dao) CreateUserInfo(userID string, nickname string, gender string, createdBy string) error {
+	userInfo := model.UserInfo{
+		UserID:   userID,
+		Nickname: nickname,
+		Gender:   gender,
+		Model:    &model.Model{CreatedBy: createdBy},
+	}
+	return userInfo.Create(d.engine)
+}
+
+func (d *Dao) GetUserInfo(userID string) (*model.UserInfo, error) {
+	userInfo := model.UserInfo{
+		UserID: userID,
+	}
+	return userInfo.Get(d.engine)
+}
+
 func (d *Dao) ActivateUser(username string, modifiedBy string) error {
 	user := model.User{
 		Username: username,

@@ -15,22 +15,28 @@ func NewRoute() *gin.Engine {
 	r.LoadHTMLGlob("static/*.html")
 
 	user := v1.NewUser()
-	apiv1 := r.Group("/api/v1")
+	userApi := r.Group("/api/v1/users")
 	{
 		//使用者登入
-		apiv1.POST("/user/login", user.Login)
+		userApi.POST("login", user.Login)
 
 		//使用者登出
-		apiv1.GET("/user/logout", user.Logout)
+		userApi.GET("logout", user.Logout)
 
 		//註冊會員
-		apiv1.POST("/user/register", user.CreateEmailConfirmUser)
-		apiv1.GET("/user/verify_email/:token", user.ActivateEmailConfirmUser)
+		userApi.POST("register", user.CreateEmailConfirmUser)
+		userApi.GET("verify_email/:token", user.ActivateEmailConfirmUser)
 
 		//忘記密碼
-		apiv1.POST("user/reset_password", user.SendResetPasswordEmail)
-		apiv1.GET("user/reset_password/:token", middleware.ValidatePasswordResetToken(), func(c *gin.Context) { c.HTML(http.StatusOK, "reset_password.html", nil) })
-		apiv1.POST("/user/reset_password/:token", middleware.ValidatePasswordResetToken(), user.ResetPassword)
+		userApi.POST("reset_password", user.SendResetPasswordEmail)
+		userApi.GET("reset_password/:token", middleware.ValidatePasswordResetToken(), func(c *gin.Context) { c.HTML(http.StatusOK, "reset_password.html", nil) })
+		userApi.POST("reset_password/:token", middleware.ValidatePasswordResetToken(), user.ResetPassword)
+
+		//建立使用者資訊
+		userApi.POST("info", user.CreateUserInfo)
+
+		//使用登入Token接收會員資料
+		userApi.GET("info", middleware.ValidateLoginToken(), user.GetUserInfo)
 	}
 
 	return r

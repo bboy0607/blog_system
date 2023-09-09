@@ -11,6 +11,41 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// 驗證登入token是否正確
+func ValidateLoginToken() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var (
+			requestToken string
+			username     string
+			ecode        = errcode.Success
+		)
+
+		requestToken = c.GetHeader("token")
+		username = c.GetHeader("username")
+
+		if requestToken == "" || username == "" {
+			ecode = errcode.InvalidParms
+		} else {
+			ctx := context.Background()
+			key := fmt.Sprintf("loginToken:%v", username)
+			userLoginToken, err := global.Redis.Get(ctx, key).Result()
+			if err != nil || requestToken != userLoginToken {
+				ecode = errcode.UnauthorizedTokenError
+			}
+		}
+
+		if ecode != errcode.Success {
+			response := app.NewResponse(c)
+			response.ToErrorResponse(ecode)
+			c.Abort()
+			return
+		}
+
+		c.Next()
+
+	}
+}
+
 func ValidatePasswordResetToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		response := app.NewResponse(c)

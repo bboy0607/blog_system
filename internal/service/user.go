@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"membership_system/global"
+	"membership_system/internal/model"
 	"membership_system/pkg/email"
 	"membership_system/pkg/errcode"
 	"membership_system/pkg/util"
@@ -48,6 +49,16 @@ type UserLogoutRequest struct {
 	Username string `form:"username" binding:"min=3,max=100,required"`
 }
 
+type CreateUserInfoRequest struct {
+	UserID   string `form:"user_id" binding:"required"`
+	Nickname string `form:"nickname" binding:"required"`
+	Gender   string `form:"gender" binding:"required,oneof=男 女"`
+}
+
+type GetUserInfoRequest struct {
+	UserID string `form:"user_id" binding:"required"`
+}
+
 func (svc Service) CreateUser(param *CreateUserRequest) error {
 	return svc.dao.CreateUser(param.Username, param.Password, param.Email, param.State, param.CreatedBy)
 }
@@ -80,6 +91,14 @@ func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) 
 	}
 
 	return nil
+}
+
+func (svc Service) CreateUserInfo(param *CreateUserInfoRequest) error {
+	return svc.dao.CreateUserInfo(param.UserID, param.Nickname, param.Gender, "backend_system")
+}
+
+func (svc Service) GetUserInfo(param *GetUserInfoRequest) (*model.UserInfo, error) {
+	return svc.dao.GetUserInfo(param.UserID)
 }
 
 func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {

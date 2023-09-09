@@ -208,3 +208,48 @@ func (u User) Logout(c *gin.Context) {
 	response.ToResponse(gin.H{"message": "使用者成功登出"})
 	return
 }
+
+func (u User) CreateUserInfo(c *gin.Context) {
+	param := service.CreateUserInfoRequest{}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
+	svc := service.New(c.Request.Context())
+	err = svc.CreateUserInfo(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.CreateUserInfo err: %v", err)
+		response.ToErrorResponse(errcode.ErrorCreateUserInfoFail)
+		return
+	}
+
+	response.ToResponse(gin.H{"message": "使用者資訊建立成功"})
+	return
+}
+
+func (u User) GetUserInfo(c *gin.Context) {
+	param := service.GetUserInfoRequest{}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
+
+	svc := service.New(c.Request.Context())
+	result, err := svc.GetUserInfo(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.GetUserInfo err: %v", err)
+		response.ToErrorResponse(errcode.ErrorGetUserInfoFail)
+		return
+	}
+
+	response.ToResponse(result)
+	return
+}
