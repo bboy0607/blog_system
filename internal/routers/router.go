@@ -5,13 +5,18 @@ import (
 	v1 "membership_system/internal/routers/api/v1"
 	"net/http"
 
+	_ "membership_system/docs"
+
 	"github.com/gin-gonic/gin"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/swaggo/gin-swagger/swaggerFiles"
 )
 
 func NewRoute() *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.LoadHTMLGlob("static/*.html")
 
 	user := v1.NewUser()

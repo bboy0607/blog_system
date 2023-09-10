@@ -10,6 +10,8 @@ import (
 	"membership_system/pkg/errcode"
 	"membership_system/pkg/util"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type CreateUserRequest struct {
@@ -118,7 +120,7 @@ func (svc Service) SendResetPasswordEmail(param *SendResetPasswordEmail) error {
 	ctx := context.Background()
 	resetPasswordToken := util.GenerateSecureToken(10)
 	key := fmt.Sprintf("resetPasswordToken:%v", resetPasswordToken)
-	global.Redis.Set(ctx, key, param.Email, 0)
+	global.Redis.Set(ctx, key, param.Email, 10*time.Minute)
 
 	email := email.NewEmail(&email.SMTPInfo{
 		Host:     global.EmailSetting.Host,
@@ -144,9 +146,14 @@ func (svc Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
 }
 
 func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err error) {
-	err = svc.dao.ValidateUserCredentials(param.Username, param.Password)
+	user, err := svc.dao.GetUserByUsername(param.Username)
 	if err != nil {
 		return "", err
+	}
+
+	//驗證密碼
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(param.Password)); err != nil {
+		return "", errcode.ErrorPasswordNotCorrect
 	}
 
 	ctx := context.Background()
@@ -154,6 +161,7 @@ func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err er
 	key := fmt.Sprintf("loginToken:%v", param.Username)
 	global.Redis.Set(ctx, key, loginToken, 0)
 	return loginToken, nil
+
 }
 
 func (svc Service) UserLogout(param *UserLogoutRequest) error {

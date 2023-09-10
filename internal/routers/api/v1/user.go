@@ -15,7 +15,17 @@ func NewUser() User {
 	return User{}
 }
 
-// 創建帳號
+// @Summary 創建帳號
+// @Produce json
+// @Param username query string true "使用者帳號" minlength(3) maxlength(100)
+// @Param password query string true "使用者密碼" minlength(6) maxlength(100)
+// @Param email query string true "使用者Email" format(email)
+// @Param state query uint8 false "使用者狀態" Enums(0, 1) default(1)
+// @Param created_by query string true "建立者" minlength(3) maxlength(100)
+// @Success 200 {object} model.User "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users [post]
 func (u User) Create(c *gin.Context) {
 	param := service.CreateUserRequest{}
 	response := app.NewResponse(c)

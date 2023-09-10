@@ -33,6 +33,8 @@ func init() {
 	}
 }
 
+// @title 會員系統
+// @version 0.6
 func main() {
 	router := routers.NewRoute()
 	s := &http.Server{

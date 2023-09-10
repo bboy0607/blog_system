@@ -44,7 +44,7 @@ func (e *Email) SendConfirmationEmail(to []string, subject string, token string)
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", to...)
 
-	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/user/verify_email/%v",
+	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/users/verify_email/%v",
 		global.ServerSetting.ListenAddr,
 		global.ServerSetting.HttpPort,
 		token,
@@ -63,7 +63,7 @@ func (e *Email) SendResetPasswordEmail(to []string, subject string, token string
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", to...)
 
-	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/user/reset_password/%v",
+	confirmUrl := fmt.Sprintf("http://%v:%v/api/v1/users/reset_password/%v",
 		global.ServerSetting.ListenAddr,
 		global.ServerSetting.HttpPort,
 		token,
