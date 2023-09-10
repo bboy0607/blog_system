@@ -2,7 +2,6 @@ package dao
 
 import (
 	"membership_system/internal/model"
-	"membership_system/pkg/pwd"
 )
 
 type User struct {
@@ -16,15 +15,9 @@ type User struct {
 }
 
 func (d *Dao) CreateUser(username string, password string, email string, state uint8, createdBy string) error {
-	//密碼使用bcrypt加密
-	hashedPassword, err := pwd.HashPassword(password)
-	if err != nil {
-		return err
-	}
-
 	user := model.User{
 		Username: username,
-		Password: hashedPassword,
+		Password: password,
 		Email:    email,
 		State:    state,
 		Model:    &model.Model{CreatedBy: createdBy},

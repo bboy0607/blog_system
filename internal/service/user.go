@@ -8,10 +8,9 @@ import (
 	"membership_system/internal/model"
 	"membership_system/pkg/email"
 	"membership_system/pkg/errcode"
+	"membership_system/pkg/pwd"
 	"membership_system/pkg/util"
 	"time"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
 type CreateUserRequest struct {
@@ -66,11 +65,19 @@ func (svc Service) CreateUser(param *CreateUserRequest) error {
 }
 
 func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) error {
-	err := svc.dao.CreateUser(param.Username, param.Password, param.Email, 0, "backend_system")
+	//密碼使用bcrypt加密
+	hashedPassword, err := pwd.HashPassword(param.Password)
 	if err != nil {
 		return err
 	}
 
+	//使用dao創建使用方法
+	err = svc.dao.CreateUser(param.Username, hashedPassword, param.Email, 0, "backend_system")
+	if err != nil {
+		return err
+	}
+
+	//建立驗證Token存入Redis中
 	var ctx = context.Background()
 	token := util.GenerateSecureToken(10)
 	err = global.Redis.Set(ctx, token, param.Username, 10*time.Minute).Err()
@@ -78,6 +85,7 @@ func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) 
 		return err
 	}
 
+	//發送驗證郵件
 	email := email.NewEmail(&email.SMTPInfo{
 		Host:     global.EmailSetting.Host,
 		Port:     global.EmailSetting.Port,
@@ -152,7 +160,7 @@ func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err er
 	}
 
 	//驗證密碼
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(param.Password)); err != nil {
+	if err := pwd.VerifyPassword(user.Password, param.Password); err != nil {
 		return "", errcode.ErrorPasswordNotCorrect
 	}
 
