@@ -44,5 +44,57 @@ func NewRoute() *gin.Engine {
 		userApi.GET("info", middleware.ValidateLoginToken(), user.GetUserInfo)
 	}
 
+	tag := v1.NewTag()
+	tagApi := r.Group("/api/v1/tags")
+	{
+		//建標籤路由
+		tagApi.POST("", tag.Create)
+
+		//查詢單獨標籤路由
+		tagApi.GET("/:id", tag.Get)
+
+		//查詢標籤清單
+		tagApi.GET("", tag.List)
+
+		//更新標籤路由
+		tagApi.PATCH("/:id", tag.Update)
+
+		//刪除標籤路由
+		tagApi.DELETE("/:id", tag.Delete)
+
+	}
+
+	article := v1.NewArticle()
+	articleApi := r.Group("/api/v1/articles")
+	{
+		//新增文章
+		articleApi.POST("", article.Create)
+
+		//查找文章
+		articleApi.GET("/:id", article.Get)
+
+		//列出文章清單
+		articleApi.GET("", article.List)
+
+		//修改文章
+		articleApi.PATCH("/:id", article.Update)
+
+		//刪除文章
+		articleApi.DELETE("/:id", article.Delete)
+
+	}
+
+	articleComment := v1.NewArticleComment()
+	articleCommentApi := r.Group("/api/v1/article_comment")
+	{
+		articleCommentApi.POST("/", articleComment.Create)
+
+		articleCommentApi.GET("/", articleComment.List)
+
+		articleCommentApi.PATCH("/:id", articleComment.Update)
+
+		articleCommentApi.DELETE("/:id", articleComment.Delete)
+	}
+
 	return r
 }
