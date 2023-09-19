@@ -27,4 +27,5 @@ var (
 	ErrorCreateArticleFail = NewErrorCode(2003001, "建立文章失敗")
 	ErrorCountArticleFail  = NewErrorCode(2003002, "查詢文章數量失敗")
 	ErrorListArticleFail   = NewErrorCode(2003003, "查詢文章清單失敗")
+	ErrorGetArticleFail    = NewErrorCode(2003004, "取得文章失敗")
 )

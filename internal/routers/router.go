@@ -67,7 +67,7 @@ func NewRoute() *gin.Engine {
 		//新增文章
 		articleApi.POST("", article.Create)
 
-		//查找文章
+		//取得文章
 		articleApi.GET("/:id", article.Get)
 
 		//列出文章清單

@@ -38,3 +38,11 @@ func (d Dao) ListArticle(title string, state uint8, page int, pageSize int) ([]*
 
 	return article.List(d.engine, pageOffset, pageSize)
 }
+
+func (d Dao) GetArticle(id uint32) (*model.Article, error) {
+	article := model.Article{
+		Model: &model.Model{ID: id},
+	}
+
+	return article.Get(d.engine)
+}

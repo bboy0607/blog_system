@@ -4,6 +4,7 @@ import (
 	"membership_system/global"
 	"membership_system/internal/service"
 	"membership_system/pkg/app"
+	"membership_system/pkg/convert"
 	"membership_system/pkg/errcode"
 
 	"github.com/gin-gonic/gin"
@@ -74,7 +75,25 @@ func (a Article) List(c *gin.Context) {
 }
 
 func (a Article) Get(c *gin.Context) {
+	param := service.GetArticleRequest{ID: convert.StrTo(c.Param("id")).MustUint32()}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
 
+	svc := service.New(c)
+	article, err := svc.GetArticle(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.GetArticle err: %v", err)
+		response.ToErrorResponse(errcode.ErrorGetArticleFail)
+		return
+	}
+
+	response.ToResponse(article)
 }
 
 func (a Article) Update(c *gin.Context) {

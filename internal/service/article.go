@@ -24,6 +24,10 @@ type ListArticleRequest struct {
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
 }
 
+type GetArticleRequest struct {
+	ID uint32 `form:"id" binding:"required,gte=1"`
+}
+
 func (svc Service) CreateArticle(param *CreateArticleRequest) error {
 	return svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
 }
@@ -34,4 +38,8 @@ func (svc Service) CountArticle(param *CountArticleRequest) (int, error) {
 
 func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*model.Article, error) {
 	return svc.dao.ListArticle(param.Title, param.State, pager.Page, pager.PageSize)
+}
+
+func (svc Service) GetArticle(param *GetArticleRequest) (*model.Article, error) {
+	return svc.dao.GetArticle(param.ID)
 }

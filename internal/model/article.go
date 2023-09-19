@@ -55,3 +55,18 @@ func (a Article) List(db *gorm.DB, pageOffset int, pageSize int) ([]*Article, er
 
 	return articles, nil
 }
+
+func (a Article) Get(db *gorm.DB) (*Article, error) {
+	article := &Article{}
+	query := db.Model(&Article{})
+	if a.ID != 0 {
+		query = query.Where("id = ?", a.ID)
+	}
+
+	err := query.Where("is_del = ?", 0).Find(&article).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return article, nil
+}
