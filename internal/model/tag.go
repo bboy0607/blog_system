@@ -16,7 +16,26 @@ func (t Tag) Create(db *gorm.DB) error {
 	return db.Create(&t).Error
 }
 
-func (t Tag) List(db *gorm.DB) ([]*Tag, error) {
+func (t Tag) Count(db *gorm.DB) (int, error) {
+	var count int
+	query := db.Model(&t)
+
+	//如果名稱不為空值，則查詢條件增加名稱查詢
+	if t.Name != "" {
+		query = query.Where("name = ?", t.Name)
+	}
+
+	query = query.Where("state = ?", t.State)
+
+	err := query.Where("is_del = ?", 0).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func (t Tag) List(db *gorm.DB, pageOffset int, pageSize int) ([]*Tag, error) {
 	tags := []*Tag{}
 
 	query := db.Model(&Tag{})
@@ -25,6 +44,9 @@ func (t Tag) List(db *gorm.DB) ([]*Tag, error) {
 	}
 
 	query = query.Where("state = ?", t.State)
+
+	//暫時測試
+	query = query.Offset(pageOffset).Limit(pageSize)
 
 	if err := query.Where("is_del = ?", 0).Find(&tags).Error; err != nil {
 		return nil, err

@@ -1,5 +1,6 @@
 package errcode
 
+//使用者相關錯誤
 var (
 	ErrorCreateUserFail     = NewErrorCode(2001002, "建立使用者失敗")
 	ErrorUserNotFound       = NewErrorCode(2001003, "查無使用者")
@@ -10,4 +11,11 @@ var (
 	ErrorCreateUserInfoFail = NewErrorCode(2001008, "建立使用者資訊失敗")
 	ErrorGetUserInfoFail    = NewErrorCode(2001009, "取得使用者資訊失敗")
 	ErrorUnknown            = NewErrorCode(2001999, "未知錯誤")
+)
+
+//Tag相關錯誤
+var (
+	ErrorCreateTagFail = NewErrorCode(2002001, "建立標籤失敗")
+	ErrorCountTagFail  = NewErrorCode(2002002, "查詢標籤數量失敗")
+	ErrorListTagFail   = NewErrorCode(2002003, "查詢標籤清單失敗")
 )
