@@ -43,10 +43,8 @@ func (t Tag) List(db *gorm.DB, pageOffset int, pageSize int) ([]*Tag, error) {
 		query.Where("name = ?", t.Name)
 	}
 
-	query = query.Where("state = ?", t.State)
-
-	//暫時測試
-	query = query.Offset(pageOffset).Limit(pageSize)
+	//新增查詢State條件與分頁功能
+	query = query.Where("state = ?", t.State).Offset(pageOffset).Limit(pageSize)
 
 	if err := query.Where("is_del = ?", 0).Find(&tags).Error; err != nil {
 		return nil, err

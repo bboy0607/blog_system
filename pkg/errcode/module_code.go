@@ -21,3 +21,10 @@ var (
 	ErrorUpdateTagFail = NewErrorCode(2002005, "更新標籤失敗")
 	ErrorDeleteTagFail = NewErrorCode(2002004, "刪除標籤失敗")
 )
+
+//文章相關錯誤
+var (
+	ErrorCreateArticleFail = NewErrorCode(2003001, "建立文章失敗")
+	ErrorCountArticleFail  = NewErrorCode(2003002, "查詢文章數量失敗")
+	ErrorListArticleFail   = NewErrorCode(2003003, "查詢文章清單失敗")
+)

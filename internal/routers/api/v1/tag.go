@@ -84,9 +84,9 @@ func (t Tag) Update(c *gin.Context) {
 	}
 
 	svc := service.New(c)
-	err = svc.Update(&param)
+	err = svc.UpdateTag(&param)
 	if err != nil {
-		global.Logger.Errorf("svc.Update err: %v", err)
+		global.Logger.Errorf("svc.UpdateTag err: %v", err)
 		response.ToErrorResponse(errcode.ErrorUpdateTagFail)
 		return
 	}

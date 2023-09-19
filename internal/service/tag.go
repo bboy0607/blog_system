@@ -7,18 +7,18 @@ import (
 
 type CreateTagRequest struct {
 	Name      string `form:"name" binding:"required,max=100"`
-	State     uint8  `form:"state, default=0" binding:"oneof=0 1"`
+	State     uint8  `form:"state, default=1" binding:"oneof=0 1"`
 	CreatedBy string `form:"created_by" binding:"required,max=100"`
 }
 
 type CountTagRequest struct {
-	Name  string `form:"name"`
-	State uint8  `form:"state, default=0" binding:"oneof=0 1"`
+	Name  string `form:"name" binding:"max=100"`
+	State uint8  `form:"state, default=1" binding:"oneof=0 1"`
 }
 
 type ListTagRequest struct {
-	Name  string `form:"name"`
-	State uint8  `form:"state, default=0"`
+	Name  string `form:"name" binding:"max=100"`
+	State uint8  `form:"state, default=1" binding:"oneof=0 1"`
 }
 
 type UpdateTagRequest struct {
@@ -44,7 +44,7 @@ func (svc Service) ListTag(param *ListTagRequest, pager *app.Pager) ([]*model.Ta
 	return svc.dao.ListTag(param.Name, param.State, pager.Page, pager.PageSize)
 }
 
-func (svc Service) Update(param *UpdateTagRequest) error {
+func (svc Service) UpdateTag(param *UpdateTagRequest) error {
 	return svc.dao.UpdateTag(param.ID, param.Name, param.State, param.ModifiedBy)
 }
 
