@@ -18,4 +18,6 @@ var (
 	ErrorCreateTagFail = NewErrorCode(2002001, "建立標籤失敗")
 	ErrorCountTagFail  = NewErrorCode(2002002, "查詢標籤數量失敗")
 	ErrorListTagFail   = NewErrorCode(2002003, "查詢標籤清單失敗")
+	ErrorUpdateTagFail = NewErrorCode(2002005, "更新標籤失敗")
+	ErrorDeleteTagFail = NewErrorCode(2002004, "刪除標籤失敗")
 )

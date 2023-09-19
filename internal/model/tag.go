@@ -54,3 +54,13 @@ func (t Tag) List(db *gorm.DB, pageOffset int, pageSize int) ([]*Tag, error) {
 
 	return tags, nil
 }
+
+//更新Tag
+func (t Tag) Update(db *gorm.DB, values interface{}) error {
+	return db.Model(&t).Where("id = ? AND is_del = ? ", t.ID, 0).Updates(values).Error
+}
+
+//刪除Tag
+func (t Tag) Delete(db *gorm.DB) error {
+	return db.Where("id = ? AND is_del = ?", t.Model.ID, 0).Delete(&t).Error
+}

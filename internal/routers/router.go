@@ -50,9 +50,6 @@ func NewRoute() *gin.Engine {
 		//建標籤路由
 		tagApi.POST("", tag.Create)
 
-		//查詢單獨標籤路由
-		tagApi.GET("/:id", tag.Get)
-
 		//查詢標籤清單
 		tagApi.GET("", tag.List)
 

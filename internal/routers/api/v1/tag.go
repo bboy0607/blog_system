@@ -4,6 +4,7 @@ import (
 	"membership_system/global"
 	"membership_system/internal/service"
 	"membership_system/pkg/app"
+	"membership_system/pkg/convert"
 	"membership_system/pkg/errcode"
 
 	"github.com/gin-gonic/gin"
@@ -37,16 +38,8 @@ func (t Tag) Create(c *gin.Context) {
 	response.ToResponse(gin.H{})
 }
 
-func (t Tag) Update(c *gin.Context) {
-
-}
-
-func (t Tag) Get(c *gin.Context) {
-
-}
-
 func (t Tag) List(c *gin.Context) {
-	param := &service.ListTagRequest{}
+	param := service.ListTagRequest{}
 	response := app.NewResponse(c)
 	err := c.ShouldBind(&param)
 	if err != nil {
@@ -67,7 +60,7 @@ func (t Tag) List(c *gin.Context) {
 
 	//查詢標籤清單
 	pager := &app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
-	tags, err := svc.ListTag(param, pager)
+	tags, err := svc.ListTag(&param, pager)
 	if err != nil {
 		global.Logger.Errorf("svc.ListTag err: %v", err)
 		response.ToErrorResponse(errcode.ErrorListTagFail)
@@ -77,6 +70,50 @@ func (t Tag) List(c *gin.Context) {
 	response.ToResponseList(tags, totalRows)
 }
 
-func (t Tag) Delete(c *gin.Context) {
+func (t Tag) Update(c *gin.Context) {
+	param := service.UpdateTagRequest{
+		ID: convert.StrTo(c.Param("id")).MustUint32(),
+	}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
 
+	svc := service.New(c)
+	err = svc.Update(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.Update err: %v", err)
+		response.ToErrorResponse(errcode.ErrorUpdateTagFail)
+		return
+	}
+
+	response.ToResponse(gin.H{})
+}
+
+func (t Tag) Delete(c *gin.Context) {
+	param := service.DeleteTagRequest{
+		ID: convert.StrTo(c.Param("id")).MustUint32(),
+	}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
+
+	svc := service.New(c)
+	err = svc.DeleteTag(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.DeleteTag err: %v", err)
+		response.ToErrorResponse(errcode.ErrorDeleteTagFail)
+		return
+	}
+
+	response.ToResponse(gin.H{})
 }
