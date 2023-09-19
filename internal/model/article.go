@@ -70,3 +70,12 @@ func (a Article) Get(db *gorm.DB) (*Article, error) {
 
 	return article, nil
 }
+
+func (a Article) Update(db *gorm.DB, values interface{}) error {
+	query := db.Model(&Article{})
+	if a.ID != 0 {
+		query = query.Where("id = ?", a.ID)
+	}
+
+	return query.Where("is_del = ?", 0).Updates(values).Error
+}
