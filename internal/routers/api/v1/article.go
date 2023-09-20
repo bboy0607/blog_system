@@ -119,5 +119,23 @@ func (a Article) Update(c *gin.Context) {
 }
 
 func (a Article) Delete(c *gin.Context) {
+	param := service.DeleteArticleRequest{ID: convert.StrTo(c.Param("id")).MustUint32()}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
 
+	svc := service.New(c)
+	err = svc.DeleteArticle(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.DeleteArticle err: %v", err)
+		response.ToErrorResponse(errcode.ErrorDeleteArticleFail)
+		return
+	}
+
+	response.ToResponse(gin.H{})
 }

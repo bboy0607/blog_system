@@ -5,7 +5,7 @@ import (
 	"membership_system/pkg/app"
 )
 
-func (d Dao) CreateArticle(title, desc, coverImageURL, content, createdBy string, state uint8) error {
+func (d Dao) CreateArticle(title, desc, coverImageURL, content, createdBy string, state uint8) (*model.Article, error) {
 	article := model.Article{
 		Title:         title,
 		Desc:          desc,
@@ -67,4 +67,10 @@ func (d Dao) UpdateArticle(id uint32, title, desc, coverImageURL, content, modif
 	}
 
 	return article.Update(d.engine, values)
+}
+
+func (d Dao) DeleteArticle(id uint32) error {
+	article := model.Article{Model: &model.Model{ID: id}}
+
+	return article.Delete(d.engine)
 }

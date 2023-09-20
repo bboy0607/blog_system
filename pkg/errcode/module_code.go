@@ -19,7 +19,7 @@ var (
 	ErrorCountTagFail  = NewErrorCode(2002002, "查詢標籤數量失敗")
 	ErrorListTagFail   = NewErrorCode(2002003, "查詢標籤清單失敗")
 	ErrorUpdateTagFail = NewErrorCode(2002005, "更新標籤失敗")
-	ErrorDeleteTagFail = NewErrorCode(2002004, "刪除標籤失敗")
+	ErrorDeleteTagFail = NewErrorCode(2002006, "刪除標籤失敗")
 )
 
 //文章相關錯誤
@@ -29,4 +29,5 @@ var (
 	ErrorListArticleFail   = NewErrorCode(2003003, "查詢文章清單失敗")
 	ErrorGetArticleFail    = NewErrorCode(2003004, "取得文章失敗")
 	ErrorUpdateArticleFail = NewErrorCode(2003005, "更新文章失敗")
+	ErrorDeleteArticleFail = NewErrorCode(2003006, "刪除文章失敗")
 )

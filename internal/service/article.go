@@ -12,6 +12,7 @@ type CreateArticleRequest struct {
 	Content       string `form:"content"`
 	State         uint8  `form:"state,default=1" binding:"oneof=0 1"`
 	CreatedBy     string `form:"created_by" binding:"required,max=100"`
+	TagID         uint32 `form:"tag_id" binding:"max=100"`
 }
 
 type CountArticleRequest struct {
@@ -38,8 +39,22 @@ type UpdateArticleRequest struct {
 	ModifiedBy    string `form:"modified_by" binding:"required,max=100"`
 }
 
+type DeleteArticleRequest struct {
+	ID uint32 `form:"id" binding:"required,gte=1"`
+}
+
 func (svc Service) CreateArticle(param *CreateArticleRequest) error {
-	return svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
+	article, err := svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
+	if err != nil {
+		return err
+	}
+
+	err = svc.dao.CreateArticleTag(article.ID, param.TagID, param.CreatedBy)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (svc Service) CountArticle(param *CountArticleRequest) (int, error) {
@@ -56,4 +71,8 @@ func (svc Service) GetArticle(param *GetArticleRequest) (*model.Article, error) 
 
 func (svc Service) UpdateArticle(param *UpdateArticleRequest) error {
 	return svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageURL, param.Content, param.ModifiedBy, param.State)
+}
+
+func (svc Service) DeleteArticle(param *DeleteArticleRequest) error {
+	return svc.dao.DeleteArticle(param.ID)
 }

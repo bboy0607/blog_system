@@ -17,8 +17,12 @@ func (a Article) TableName() string {
 	return "blog_article"
 }
 
-func (a Article) Create(db *gorm.DB) error {
-	return db.Create(&a).Error
+func (a Article) Create(db *gorm.DB) (*Article, error) {
+	if err := db.Create(&a).Error; err != nil {
+		return nil, err
+	}
+
+	return &a, nil
 }
 
 func (a Article) Count(db *gorm.DB) (int, error) {
@@ -78,4 +82,8 @@ func (a Article) Update(db *gorm.DB, values interface{}) error {
 	}
 
 	return query.Where("is_del = ?", 0).Updates(values).Error
+}
+
+func (a Article) Delete(db *gorm.DB) error {
+	return db.Where("id = ? AND is_del = ?", a.Model.ID, 0).Delete(&a).Error
 }
