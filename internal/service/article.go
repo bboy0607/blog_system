@@ -35,6 +35,7 @@ type UpdateArticleRequest struct {
 	Desc          string `form:"desc" binding:"max=100"`
 	CoverImageURL string `form:"cover_image_url"`
 	Content       string `form:"content"`
+	TagID         uint32 `form:"tag_id" binding:"gte=1"`
 	State         uint8  `form:"state,default=1" binding:"oneof=0 1"`
 	ModifiedBy    string `form:"modified_by" binding:"required,max=100"`
 }
@@ -70,9 +71,31 @@ func (svc Service) GetArticle(param *GetArticleRequest) (*model.Article, error) 
 }
 
 func (svc Service) UpdateArticle(param *UpdateArticleRequest) error {
-	return svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageURL, param.Content, param.ModifiedBy, param.State)
+	err := svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageURL, param.Content, param.ModifiedBy, param.State)
+	if err != nil {
+		return err
+	}
+
+	err = svc.dao.UpdateArticleTag(param.ID, param.TagID, param.ModifiedBy)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (svc Service) DeleteArticle(param *DeleteArticleRequest) error {
-	return svc.dao.DeleteArticle(param.ID)
+	//刪除文章
+	err := svc.dao.DeleteArticle(param.ID)
+	if err != nil {
+		return err
+	}
+
+	//刪除與文章標籤關聯資料
+	err = svc.dao.DeleteArticleTag(param.ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
