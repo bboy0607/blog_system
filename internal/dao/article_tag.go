@@ -3,14 +3,13 @@ package dao
 import "membership_system/internal/model"
 
 //創建文章與標籤的關聯
-func (d Dao) CreateArticleTag(articleID, tagID uint32, createdBy string) error {
+func (d Dao) CreateArticleTag(articleID uint32, tagIDs []uint32, createdBy string) error {
 	articleTag := model.ArticleTag{
 		ArticleID: articleID,
-		TagID:     tagID,
 		Model:     &model.Model{CreatedBy: createdBy},
 	}
 
-	return articleTag.Create(d.engine)
+	return articleTag.Create(d.engine, tagIDs)
 }
 
 func (d Dao) UpdateArticleTag(articleID uint32, tagID uint32, modifiedBy string) error {

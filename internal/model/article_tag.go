@@ -12,8 +12,32 @@ func (a ArticleTag) TableName() string {
 	return "blog_article_tag"
 }
 
-func (a ArticleTag) Create(db *gorm.DB) error {
-	return db.Create(&a).Error
+func (a ArticleTag) Create(db *gorm.DB, tagIDs []uint32) error {
+	//建立新交易
+	tx := db.Begin()
+
+	for _, tagID := range tagIDs {
+		articleTag := &ArticleTag{
+			ArticleID: a.ArticleID,
+			TagID:     tagID,
+		}
+
+		err := tx.Create(&articleTag).Error
+		// 如果在交易中有任何錯誤，回滾交易
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	//如果所有操作都成功，提交交易
+	err := tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (a ArticleTag) ListByTID(db *gorm.DB) ([]*ArticleTag, error) {

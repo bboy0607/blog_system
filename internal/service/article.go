@@ -6,13 +6,13 @@ import (
 )
 
 type CreateArticleRequest struct {
-	Title         string `form:"title" binding:"required,max=100"`
-	Desc          string `form:"desc" binding:"max=100"`
-	CoverImageUrl string `form:"cover_image_url"`
-	Content       string `form:"content"`
-	State         uint8  `form:"state,default=1" binding:"oneof=0 1"`
-	CreatedBy     string `form:"created_by" binding:"required,max=100"`
-	TagID         uint32 `form:"tag_id" binding:"max=100"`
+	Title         string   `form:"title" binding:"required,max=100"`
+	Desc          string   `form:"desc" binding:"max=100"`
+	CoverImageUrl string   `form:"cover_image_url"`
+	Content       string   `form:"content"`
+	State         uint8    `form:"state,default=1" binding:"oneof=0 1"`
+	CreatedBy     string   `form:"created_by" binding:"required,max=100"`
+	TagIDs        []uint32 `form:"tag_id" binding:"max=100"`
 }
 
 type CountArticleByTitleRequest struct {
@@ -65,7 +65,7 @@ func (svc Service) CreateArticle(param *CreateArticleRequest) error {
 		return err
 	}
 
-	err = svc.dao.CreateArticleTag(article.ID, param.TagID, param.CreatedBy)
+	err = svc.dao.CreateArticleTag(article.ID, param.TagIDs, param.CreatedBy)
 	if err != nil {
 		return err
 	}
