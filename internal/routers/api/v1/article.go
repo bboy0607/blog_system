@@ -38,6 +38,44 @@ func (a Article) Create(c *gin.Context) {
 	response.ToResponse(gin.H{})
 }
 
+// 查詢文章清單 By Title
+// func (a Article) List(c *gin.Context) {
+// 	param := service.ListArticleRequest{}
+// 	response := app.NewResponse(c)
+
+// 	err := c.ShouldBind(&param)
+// 	if err != nil {
+// 		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+// 		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+// 		response.ToErrorResponse(errRsp)
+// 		return
+// 	}
+
+// 	svc := service.New(c)
+// 	totalRows, err := svc.CountArticle(&service.CountArticleRequest{Title: param.Title, State: param.State})
+// 	if err != nil {
+// 		global.Logger.Errorf("svc.CountArticle err: %v", err)
+// 		response.ToErrorResponse(errcode.ErrorCountArticleFail)
+// 		return
+// 	}
+
+// 	pager := app.Pager{
+// 		Page:      app.GetPage(c),
+// 		PageSize:  app.GetPageSize(c),
+// 		TotalRows: totalRows,
+// 	}
+
+// 	articles, err := svc.ListAricle(&param, &pager)
+// 	if err != nil {
+// 		global.Logger.Errorf("svc.ListAricle: %v", err)
+// 		response.ToErrorResponse(errcode.ErrorListArticleFail)
+// 		return
+// 	}
+
+// 	response.ToResponseList(articles, totalRows)
+// }
+
+// 查詢文章清單 By TagID
 func (a Article) List(c *gin.Context) {
 	param := service.ListArticleRequest{}
 	response := app.NewResponse(c)
@@ -51,20 +89,13 @@ func (a Article) List(c *gin.Context) {
 	}
 
 	svc := service.New(c)
-	totalRows, err := svc.CountArticle(&service.CountArticleRequest{Title: param.Title, State: param.State})
-	if err != nil {
-		global.Logger.Errorf("svc.CountArticle err: %v", err)
-		response.ToErrorResponse(errcode.ErrorCountArticleFail)
-		return
-	}
 
 	pager := app.Pager{
-		Page:      app.GetPage(c),
-		PageSize:  app.GetPageSize(c),
-		TotalRows: totalRows,
+		Page:     app.GetPage(c),
+		PageSize: app.GetPageSize(c),
 	}
 
-	articles, err := svc.ListAricle(&param, &pager)
+	articles, totalRows, err := svc.ListAricle(&param, &pager)
 	if err != nil {
 		global.Logger.Errorf("svc.ListAricle: %v", err)
 		response.ToErrorResponse(errcode.ErrorListArticleFail)

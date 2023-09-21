@@ -15,13 +15,23 @@ type CreateArticleRequest struct {
 	TagID         uint32 `form:"tag_id" binding:"max=100"`
 }
 
-type CountArticleRequest struct {
+type CountArticleByTitleRequest struct {
 	Title string `form:"title" binding:"max=100"`
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
 }
 
+type CountArticleRequest struct {
+	TagID uint32 `form:"tag_id" binding:"max=100"`
+	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
+}
+
+// type ListArticleRequest struct {
+// 	Title string `form:"title" binding:"max=100"`
+// 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
+// }
+
 type ListArticleRequest struct {
-	Title string `form:"title" binding:"max=100"`
+	TagID uint32 `form:"tag_id" binding:"gte=1"`
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
 }
 
@@ -44,6 +54,16 @@ type DeleteArticleRequest struct {
 	ID uint32 `form:"id" binding:"required,gte=1"`
 }
 
+type Article struct {
+	ID            uint32     `json:"id"`
+	Title         string     `json:"title"`
+	Desc          string     `json:"desc"`
+	CoverImageURL string     `json:"cover_image_url"`
+	Content       string     `json:"content"`
+	State         uint8      `json:"state"`
+	Tag           *model.Tag `json:"tag"`
+}
+
 func (svc Service) CreateArticle(param *CreateArticleRequest) error {
 	article, err := svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
 	if err != nil {
@@ -58,12 +78,35 @@ func (svc Service) CreateArticle(param *CreateArticleRequest) error {
 	return nil
 }
 
-func (svc Service) CountArticle(param *CountArticleRequest) (int, error) {
+func (svc Service) CountArticle(param *CountArticleByTitleRequest) (int, error) {
 	return svc.dao.CountArticle(param.Title, param.State)
 }
 
-func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*model.Article, error) {
-	return svc.dao.ListArticle(param.Title, param.State, pager.Page, pager.PageSize)
+func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*Article, int, error) {
+	totalRows, err := svc.dao.CountArticleByTagID(param.TagID, param.State)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	articles, err := svc.dao.ListArticleByTagID(param.TagID, param.State, pager.Page, pager.PageSize)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	var articleList []*Article
+	for _, article := range articles {
+		articleList = append(articleList, &Article{
+			ID:            article.ArticleID,
+			Title:         article.Title,
+			Desc:          article.Desc,
+			CoverImageURL: article.CoverImageUrl,
+			Content:       article.Content,
+			State:         article.State,
+			Tag:           &model.Tag{Model: &model.Model{ID: article.TagID}, Name: article.TagName},
+		})
+	}
+
+	return articleList, totalRows, nil
 }
 
 func (svc Service) GetArticle(param *GetArticleRequest) (*model.Article, error) {

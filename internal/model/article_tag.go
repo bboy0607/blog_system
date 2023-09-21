@@ -16,6 +16,18 @@ func (a ArticleTag) Create(db *gorm.DB) error {
 	return db.Create(&a).Error
 }
 
+func (a ArticleTag) ListByTID(db *gorm.DB) ([]*ArticleTag, error) {
+	ArticleTags := []*ArticleTag{}
+	query := db.Model(&ArticleTag{}).Where("tag_id = ? AND is_del = ?", a.TagID, 0)
+
+	err := query.Find(&ArticleTags).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return ArticleTags, nil
+}
+
 func (a ArticleTag) Update(db *gorm.DB, values interface{}) error {
 	return db.Model(&a).Where("article_id = ? AND is_del = ?", a.ArticleID, 0).Updates(values).Error
 }
