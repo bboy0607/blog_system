@@ -25,11 +25,6 @@ type CountArticleRequest struct {
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
 }
 
-// type ListArticleRequest struct {
-// 	Title string `form:"title" binding:"max=100"`
-// 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
-// }
-
 type ListArticleRequest struct {
 	TagID uint32 `form:"tag_id" binding:"gte=1"`
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
@@ -76,10 +71,6 @@ func (svc Service) CreateArticle(param *CreateArticleRequest) error {
 	}
 
 	return nil
-}
-
-func (svc Service) CountArticle(param *CountArticleByTitleRequest) (int, error) {
-	return svc.dao.CountArticle(param.Title, param.State)
 }
 
 func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*Article, int, error) {

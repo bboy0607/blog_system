@@ -18,15 +18,6 @@ func (d Dao) CreateArticle(title, desc, coverImageURL, content, createdBy string
 	return article.Create(d.engine)
 }
 
-func (d Dao) CountArticle(title string, state uint8) (int, error) {
-	article := model.Article{
-		Title: title,
-		State: state,
-	}
-
-	return article.Count(d.engine)
-}
-
 func (d Dao) ListArticleByTagID(tagID uint32, state uint8, page int, pageSize int) ([]*model.ArticleRow, error) {
 	pageOffset := app.GetPageOffset(page, pageSize)
 	article := &model.Article{State: state}
