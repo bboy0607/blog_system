@@ -21,7 +21,7 @@ func NewRoute() *gin.Engine {
 
 	//檔案上傳
 	upload := NewUplaod()
-	r.POST("/upload", upload.UploadFile)
+	r.POST("/upload", upload.UploadMultipleFiles)
 
 	user := v1.NewUser()
 	userApi := r.Group("/api/v1/users")

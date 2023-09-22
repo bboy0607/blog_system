@@ -47,20 +47,41 @@ func (u Upload) UploadFile(c *gin.Context) {
 	})
 }
 
-// // 上傳多檔案
-// func (u Upload) UploadMultipleFiles(c *gin.Context) {
-// 	response := app.NewResponse(c)
-// 	c.Request.ParseMultipartForm(10 << 20)
-// 	if err != nil {
-//         errRsp := errcode.InvalidParams.WithDetails(err.Error())
-//         response.ToErrorResponse(errRsp)
-//         return
-//     }
+// 上傳多檔案
+func (u Upload) UploadMultipleFiles(c *gin.Context) {
+	response := app.NewResponse(c)
+	//擷取所有MultipartForm至map中: 10 * 2^20 bytes = 10485760 Bytes = 10 MB
+	err := c.Request.ParseMultipartForm(global.AppSetting.UploadMultiImageTotalMaxSize)
+	if err != nil {
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
 
-// 	for _, fileHeaders := range c.Request.MultipartForm.File{
-// 		for _, fileHeader := range fileHeaders {
+	//擷取type欄位
+	fileType := convert.StrTo(c.PostForm("type")).MustInt()
 
-// 		}
-// 	}
+	for _, fileHeaders := range c.Request.MultipartForm.File {
+		for _, fileHeader := range fileHeaders {
+			file, err := fileHeader.Open()
+			if err != nil {
+				global.Logger.Errorf("Error open file: %v", err)
+				response.ToErrorResponse(errcode.ErrorOpenFileFail)
+				return
+			}
+			defer file.Close()
 
-// }
+			svc := service.New(c)
+			_, err = svc.UploadFile(upload.FileType(fileType), file, fileHeader)
+
+			if err != nil {
+				global.Logger.Errorf("svc.UploadFile err: %v", err)
+				response.ToErrorResponse(errcode.ErrorUploadFileFail)
+				return
+			}
+
+		}
+	}
+
+	response.ToResponse(gin.H{"message": "upload successed"})
+}

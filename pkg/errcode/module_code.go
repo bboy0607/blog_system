@@ -35,4 +35,5 @@ var (
 //上傳檔案相關錯誤
 var (
 	ErrorUploadFileFail = NewErrorCode(2004001, "上傳檔案失敗")
+	ErrorOpenFileFail   = NewErrorCode(2004002, "開啟檔案失敗")
 )
