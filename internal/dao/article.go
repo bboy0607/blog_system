@@ -3,8 +3,11 @@ package dao
 import (
 	"membership_system/internal/model"
 	"membership_system/pkg/app"
+
+	"github.com/jinzhu/gorm"
 )
 
+// 創建文章
 func (d Dao) CreateArticle(title, desc, coverImageURL, content, createdBy string, state uint8) (*model.Article, error) {
 	article := model.Article{
 		Title:         title,
@@ -16,6 +19,20 @@ func (d Dao) CreateArticle(title, desc, coverImageURL, content, createdBy string
 	}
 
 	return article.Create(d.engine)
+}
+
+// 創建文章(使用交易)
+func (d Dao) CreateArticleInTransaction(tx *gorm.DB, title, desc, coverImageURL, content, createdBy string, state uint8) (*model.Article, error) {
+	article := model.Article{
+		Title:         title,
+		Desc:          desc,
+		CoverImageUrl: coverImageURL,
+		Content:       content,
+		State:         state,
+		Model:         &model.Model{CreatedBy: createdBy},
+	}
+
+	return article.CreateInTransaction(tx)
 }
 
 func (d Dao) ListArticleByTagID(tagID uint32, state uint8, page int, pageSize int) ([]*model.ArticleRow, error) {

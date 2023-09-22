@@ -31,3 +31,8 @@ var (
 	ErrorUpdateArticleFail = NewErrorCode(2003005, "更新文章失敗")
 	ErrorDeleteArticleFail = NewErrorCode(2003006, "刪除文章失敗")
 )
+
+//上傳檔案相關錯誤
+var (
+	ErrorUploadFileFail = NewErrorCode(2004001, "上傳檔案失敗")
+)

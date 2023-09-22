@@ -60,11 +60,11 @@ type GetUserInfoRequest struct {
 	UserID string `form:"user_id" binding:"required"`
 }
 
-func (svc Service) CreateUser(param *CreateUserRequest) error {
+func (svc *Service) CreateUser(param *CreateUserRequest) error {
 	return svc.dao.CreateUser(param.Username, param.Password, param.Email, param.State, param.CreatedBy)
 }
 
-func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) error {
+func (svc *Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) error {
 	//密碼使用bcrypt加密
 	hashedPassword, err := pwd.HashPassword(param.Password)
 	if err != nil {
@@ -103,15 +103,15 @@ func (svc Service) CreateEmailConfirmUser(param *CreateEmailConfirmUserRequest) 
 	return nil
 }
 
-func (svc Service) CreateUserInfo(param *CreateUserInfoRequest) error {
+func (svc *Service) CreateUserInfo(param *CreateUserInfoRequest) error {
 	return svc.dao.CreateUserInfo(param.UserID, param.Nickname, param.Gender, "backend_system")
 }
 
-func (svc Service) GetUserInfo(param *GetUserInfoRequest) (*model.UserInfo, error) {
+func (svc *Service) GetUserInfo(param *GetUserInfoRequest) (*model.UserInfo, error) {
 	return svc.dao.GetUserInfo(param.UserID)
 }
 
-func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
+func (svc *Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
 	var ctx = context.Background()
 	username, err := global.Redis.Get(ctx, param.Token).Result()
 	if err != nil {
@@ -120,7 +120,7 @@ func (svc Service) ActivateEmailConfirmUser(param *ActivateUserRequest) error {
 	return svc.dao.ActivateUser(username, "backend_system")
 }
 
-func (svc Service) SendResetPasswordEmail(param *SendResetPasswordEmail) error {
+func (svc *Service) SendResetPasswordEmail(param *SendResetPasswordEmail) error {
 	if err := svc.dao.CheckEmail(param.Email); err != nil {
 		return err
 	}
@@ -146,14 +146,14 @@ func (svc Service) SendResetPasswordEmail(param *SendResetPasswordEmail) error {
 	return nil
 }
 
-func (svc Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
+func (svc *Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
 	if param.NewPassword != param.NewConfirmPassword {
 		return errors.New("新密碼與確認密碼不符合")
 	}
 	return svc.dao.ResetUserPassword(param.Email, param.NewPassword, "backend_system")
 }
 
-func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err error) {
+func (svc *Service) UserLogin(param *UserLoginRequest) (loginToken string, err error) {
 	user, err := svc.dao.GetUserByUsername(param.Username)
 	if err != nil {
 		return "", err
@@ -172,7 +172,7 @@ func (svc Service) UserLogin(param *UserLoginRequest) (loginToken string, err er
 
 }
 
-func (svc Service) UserLogout(param *UserLogoutRequest) error {
+func (svc *Service) UserLogout(param *UserLogoutRequest) error {
 	ctx := context.Background()
 	key := fmt.Sprintf("loginToken:%v", param.Username)
 	count, err := global.Redis.Del(ctx, key).Result()

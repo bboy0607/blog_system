@@ -59,21 +59,35 @@ type Article struct {
 	Tag           *model.Tag `json:"tag"`
 }
 
-func (svc Service) CreateArticle(param *CreateArticleRequest) error {
-	article, err := svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
+func (svc *Service) CreateArticle(param *CreateArticleRequest) error {
+
+	//開始交易
+	tx := svc.BeginTransaction()
+
+	//使用交易創建文章
+	article, err := svc.dao.CreateArticleInTransaction(tx, param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
-	err = svc.dao.CreateArticleTag(article.ID, param.TagIDs, param.CreatedBy)
+	err = svc.dao.CreateArticleTagInTransaction(tx, article.ID, param.TagIDs, param.CreatedBy)
 	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	//交易結束
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
 	return nil
 }
 
-func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*Article, int, error) {
+func (svc *Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*Article, int, error) {
 	totalRows, err := svc.dao.CountArticleByTagID(param.TagID, param.State)
 	if err != nil {
 		return nil, 0, err
@@ -100,11 +114,11 @@ func (svc Service) ListAricle(param *ListArticleRequest, pager *app.Pager) ([]*A
 	return articleList, totalRows, nil
 }
 
-func (svc Service) GetArticle(param *GetArticleRequest) (*model.Article, error) {
+func (svc *Service) GetArticle(param *GetArticleRequest) (*model.Article, error) {
 	return svc.dao.GetArticle(param.ID)
 }
 
-func (svc Service) UpdateArticle(param *UpdateArticleRequest) error {
+func (svc *Service) UpdateArticle(param *UpdateArticleRequest) error {
 	err := svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageURL, param.Content, param.ModifiedBy, param.State)
 	if err != nil {
 		return err
@@ -118,7 +132,7 @@ func (svc Service) UpdateArticle(param *UpdateArticleRequest) error {
 	return nil
 }
 
-func (svc Service) DeleteArticle(param *DeleteArticleRequest) error {
+func (svc *Service) DeleteArticle(param *DeleteArticleRequest) error {
 	//刪除文章
 	err := svc.dao.DeleteArticle(param.ID)
 	if err != nil {

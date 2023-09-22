@@ -36,6 +36,14 @@ func (a Article) Create(db *gorm.DB) (*Article, error) {
 	return &a, nil
 }
 
+func (a Article) CreateInTransaction(tx *gorm.DB) (*Article, error) {
+	if err := tx.Create(&a).Error; err != nil {
+		return nil, err
+	}
+
+	return &a, nil
+}
+
 func (a Article) Count(db *gorm.DB) (int, error) {
 	var count int
 	if a.Title != "" {

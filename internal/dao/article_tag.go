@@ -1,8 +1,12 @@
 package dao
 
-import "membership_system/internal/model"
+import (
+	"membership_system/internal/model"
 
-//創建文章與標籤的關聯
+	"github.com/jinzhu/gorm"
+)
+
+// 創建文章與標籤的關聯
 func (d Dao) CreateArticleTag(articleID uint32, tagIDs []uint32, createdBy string) error {
 	articleTag := model.ArticleTag{
 		ArticleID: articleID,
@@ -10,6 +14,16 @@ func (d Dao) CreateArticleTag(articleID uint32, tagIDs []uint32, createdBy strin
 	}
 
 	return articleTag.Create(d.engine, tagIDs)
+}
+
+// 創建文章與標籤的關聯(使用交易)
+func (d Dao) CreateArticleTagInTransaction(tx *gorm.DB, articleID uint32, tagIDs []uint32, createdBy string) error {
+	articleTag := model.ArticleTag{
+		ArticleID: articleID,
+		Model:     &model.Model{CreatedBy: createdBy},
+	}
+
+	return articleTag.CreateInTransaction(tx, tagIDs)
 }
 
 func (d Dao) UpdateArticleTag(articleID uint32, tagID uint32, modifiedBy string) error {

@@ -19,6 +19,10 @@ func NewRoute() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.LoadHTMLGlob("static/*.html")
 
+	//檔案上傳
+	upload := NewUplaod()
+	r.POST("/upload", upload.UploadFile)
+
 	user := v1.NewUser()
 	userApi := r.Group("/api/v1/users")
 	{

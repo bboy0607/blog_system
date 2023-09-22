@@ -24,6 +24,7 @@ App:
   # Log file extension
   LogFileExt: .log
 
+
 # Configuration for the database
 Database:
   # Type of database (e.g., "mysql", "postgres")

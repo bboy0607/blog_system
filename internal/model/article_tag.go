@@ -40,6 +40,22 @@ func (a ArticleTag) Create(db *gorm.DB, tagIDs []uint32) error {
 	return nil
 }
 
+func (a ArticleTag) CreateInTransaction(tx *gorm.DB, tagIDs []uint32) error {
+	for _, tagID := range tagIDs {
+		articleTag := &ArticleTag{
+			ArticleID: a.ArticleID,
+			TagID:     tagID,
+		}
+
+		err := tx.Create(&articleTag).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (a ArticleTag) ListByTID(db *gorm.DB) ([]*ArticleTag, error) {
 	ArticleTags := []*ArticleTag{}
 	query := db.Model(&ArticleTag{}).Where("tag_id = ? AND is_del = ?", a.TagID, 0)
