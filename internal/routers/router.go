@@ -86,7 +86,7 @@ func NewRoute() *gin.Engine {
 	}
 
 	articleComment := v1.NewArticleComment()
-	articleCommentApi := r.Group("/api/v1/article_comment")
+	articleCommentApi := r.Group("/api/v1/article_comments")
 	{
 		articleCommentApi.POST("/", articleComment.Create)
 

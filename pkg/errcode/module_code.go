@@ -32,8 +32,14 @@ var (
 	ErrorDeleteArticleFail = NewErrorCode(2003006, "刪除文章失敗")
 )
 
+//文章評論錯誤
+var (
+	ErrorCreateArticleCommentFail = NewErrorCode(2004001, "建立文章評論失敗")
+	ErrorUpdateArticleCommentFail = NewErrorCode(2004005, "更新文章評論失敗")
+)
+
 //上傳檔案相關錯誤
 var (
-	ErrorUploadFileFail = NewErrorCode(2004001, "上傳檔案失敗")
-	ErrorOpenFileFail   = NewErrorCode(2004002, "開啟檔案失敗")
+	ErrorUploadFileFail = NewErrorCode(2005001, "上傳檔案失敗")
+	ErrorOpenFileFail   = NewErrorCode(2006002, "開啟檔案失敗")
 )
