@@ -35,6 +35,8 @@ var (
 //文章評論錯誤
 var (
 	ErrorCreateArticleCommentFail = NewErrorCode(2004001, "建立文章評論失敗")
+	ErrorCountArticleCommentFail  = NewErrorCode(2004002, "查詢文章評論數量失敗")
+	ErrorListArticleCommentFail   = NewErrorCode(2004004, "查詢文章評論清單失敗")
 	ErrorUpdateArticleCommentFail = NewErrorCode(2004005, "更新文章評論失敗")
 )
 

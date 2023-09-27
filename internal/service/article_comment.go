@@ -1,10 +1,16 @@
 package service
 
+import "membership_system/internal/model"
+
 type CreateArticleCommentRequest struct {
 	ArticleID uint32 `form:"article_id" binding:"required,gte=1"`
 	Nickname  string `form:"nickname" binding:"required,min=3,max=100"`
 	Comment   string `form:"comment" binding:"required,min=3,max=300"`
 	CreatedBy string `form:"created_by" binding:"required"`
+}
+
+type ListArticleCommentRequest struct {
+	ArticleID uint32 `form:"article_id" binding:"required,gte=1"`
 }
 
 type UpdateArticleCommentRequest struct {
@@ -20,6 +26,10 @@ type DeleteArticleCommentRequest struct {
 
 func (svc Service) CreateArticleComment(param *CreateArticleCommentRequest) error {
 	return svc.dao.CreateArticleComment(param.ArticleID, param.Nickname, param.Comment, param.CreatedBy)
+}
+
+func (svc Service) ListArticleComment(param *ListArticleCommentRequest) ([]*model.ArticleComment, error) {
+	return svc.dao.ListArticleComment(param.ArticleID)
 }
 
 func (svc Service) UpdateArticleComment(param *UpdateArticleCommentRequest) error {

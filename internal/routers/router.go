@@ -1,12 +1,15 @@
 package routers
 
 import (
+	"membership_system/global"
 	"membership_system/internal/middleware"
 	v1 "membership_system/internal/routers/api/v1"
 	"net/http"
 
 	_ "membership_system/docs"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/gin-swagger/swaggerFiles"
@@ -19,18 +22,27 @@ func NewRoute() *gin.Engine {
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.LoadHTMLGlob("static/*.html")
 
+	//Session管理
+	store, _ := redis.NewStore(1024, "tcp", global.RedisSetting.Host+":"+global.RedisSetting.Port, "", []byte("1234"))
+	r.Use(sessions.Sessions("session", store))
+
 	//檔案上傳
 	upload := NewUplaod()
 	r.POST("/upload", upload.UploadMultipleFiles)
 
 	user := v1.NewUser()
+	//使用者登入
+	r.POST("/login", user.Login)
+	//使用者登出
+	r.GET("/logout", user.Logout)
+
 	userApi := r.Group("/api/v1/users")
 	{
 		//使用者登入
-		userApi.POST("login", user.Login)
+		//userApi.POST("login", user.Login)
 
 		//使用者登出
-		userApi.GET("logout", user.Logout)
+		//userApi.GET("logout", user.Logout)
 
 		//註冊會員
 		userApi.POST("register", user.CreateEmailConfirmUser)
@@ -68,6 +80,8 @@ func NewRoute() *gin.Engine {
 	article := v1.NewArticle()
 	articleApi := r.Group("/api/v1/articles")
 	{
+		articleApi.Use(middleware.ValidateSessionID())
+
 		//新增文章
 		articleApi.POST("", article.Create)
 
@@ -90,7 +104,7 @@ func NewRoute() *gin.Engine {
 	{
 		articleCommentApi.POST("/", articleComment.Create)
 
-		articleCommentApi.GET("/", articleComment.List)
+		articleCommentApi.GET("/:articleID", articleComment.GetByArticleID)
 
 		articleCommentApi.PATCH("/:id", articleComment.Update)
 

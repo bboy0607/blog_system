@@ -167,7 +167,7 @@ func (u User) Login(c *gin.Context) {
 	}
 
 	svc := service.New(c.Request.Context())
-	loginToken, err := svc.UserLogin(&param)
+	_, err = svc.UserLogin(&param, c)
 	if err != nil {
 		global.Logger.Errorf("svc.UserLogin err: %v", err)
 		switch err {
@@ -183,7 +183,7 @@ func (u User) Login(c *gin.Context) {
 		return
 	}
 
-	response.ToResponse(gin.H{"message": "使用者登入成功", "login_token": loginToken})
+	response.ToResponse(gin.H{"message": "使用者登入成功", "login_token": ""})
 	return
 }
 
@@ -192,15 +192,15 @@ func (u User) Login(c *gin.Context) {
 func (u User) Logout(c *gin.Context) {
 	param := service.UserLogoutRequest{}
 	response := app.NewResponse(c)
-	err := c.ShouldBind(&param)
-	if err != nil {
-		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
-		errRsp := errcode.InvalidParms.WithDetails(err.Error())
-		response.ToErrorResponse(errRsp)
-		return
-	}
+	// err := c.ShouldBind(&param)
+	// if err != nil {
+	// 	global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+	// 	errRsp := errcode.InvalidParms.WithDetails(err.Error())
+	// 	response.ToErrorResponse(errRsp)
+	// 	return
+	// }
 	svc := service.New(c.Request.Context())
-	err = svc.UserLogout(&param)
+	err := svc.UserLogout(&param, c)
 	if err != nil {
 		switch err {
 		case errcode.ErrorUserLoggedOut:

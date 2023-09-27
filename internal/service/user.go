@@ -11,6 +11,9 @@ import (
 	"membership_system/pkg/pwd"
 	"membership_system/pkg/util"
 	"time"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 )
 
 type CreateUserRequest struct {
@@ -153,7 +156,7 @@ func (svc *Service) ResetUserPassword(param *ResetUserPasswordRequest) error {
 	return svc.dao.ResetUserPassword(param.Email, param.NewPassword, "backend_system")
 }
 
-func (svc *Service) UserLogin(param *UserLoginRequest) (loginToken string, err error) {
+func (svc *Service) UserLogin(param *UserLoginRequest, c *gin.Context) (loginToken string, err error) {
 	user, err := svc.dao.GetUserByUsername(param.Username)
 	if err != nil {
 		return "", err
@@ -164,23 +167,44 @@ func (svc *Service) UserLogin(param *UserLoginRequest) (loginToken string, err e
 		return "", errcode.ErrorPasswordNotCorrect
 	}
 
-	ctx := context.Background()
-	loginToken = util.GenerateSecureToken(10)
-	key := fmt.Sprintf("loginToken:%v", param.Username)
-	global.Redis.Set(ctx, key, loginToken, 0)
-	return loginToken, nil
+	session := sessions.Default(c)
+	sessionID := session.Get("session_id")
 
+	if sessionID == nil {
+		//使用寫好的GenerateRandomSessionID函數產生SessionID
+		sessionID := util.GenerateRandomSessionID()
+		session.Set("session_id", sessionID)
+		err = session.Save()
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// ctx := context.Background()
+	// loginToken = util.GenerateSecureToken(10)
+	// key := fmt.Sprintf("loginToken:%v", param.Username)
+	// global.Redis.Set(ctx, key, loginToken, 0)
+	// return loginToken, nil
+
+	return "", nil
 }
 
-func (svc *Service) UserLogout(param *UserLogoutRequest) error {
-	ctx := context.Background()
-	key := fmt.Sprintf("loginToken:%v", param.Username)
-	count, err := global.Redis.Del(ctx, key).Result()
+func (svc *Service) UserLogout(param *UserLogoutRequest, c *gin.Context) error {
+	// ctx := context.Background()
+	// key := fmt.Sprintf("loginToken:%v", param.Username)
+	// count, err := global.Redis.Del(ctx, key).Result()
+	// if err != nil {
+	// 	return err
+	// }
+	// if count == 0 {
+	// 	return errcode.ErrorUserLoggedOut
+	// }
+	session := sessions.Default(c)
+	session.Delete("session_id")
+	err := session.Save()
 	if err != nil {
 		return err
 	}
-	if count == 0 {
-		return errcode.ErrorUserLoggedOut
-	}
+
 	return nil
 }

@@ -38,7 +38,27 @@ func (a ArticleComment) Create(c *gin.Context) {
 	response.ToResponse(gin.H{})
 }
 
-func (a ArticleComment) List(c *gin.Context) {}
+func (a ArticleComment) GetByArticleID(c *gin.Context) {
+	param := service.ListArticleCommentRequest{ArticleID: convert.StrTo(c.Param("articleID")).MustUint32()}
+	response := app.NewResponse(c)
+	err := c.ShouldBind(&param)
+	if err != nil {
+		global.Logger.Errorf("gin.Context ShouldBind err: %v", err)
+		errRsp := errcode.InvalidParms.WithDetails(err.Error())
+		response.ToErrorResponse(errRsp)
+		return
+	}
+
+	svc := service.New(c)
+	articleComments, err := svc.ListArticleComment(&param)
+	if err != nil {
+		global.Logger.Errorf("svc.ListArticleComment err: %v", err)
+		response.ToErrorResponse(errcode.ErrorListArticleCommentFail)
+		return
+	}
+
+	response.ToResponseList(articleComments, 0)
+}
 
 func (a ArticleComment) Update(c *gin.Context) {
 	param := service.UpdateArticleCommentRequest{ID: convert.StrTo(c.Param("id")).MustUint32()}
