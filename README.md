@@ -25,18 +25,18 @@
 - 多圖片上傳
 
 ## 內部公共元件
-convert: 統一的字元轉換處理工具 ex: str to uint32、str to int
-email: 處理email與SMTP Server相關互動邏輯
-errcode: 這裡定義error的處理方式與業務邏輯錯誤的定義
-logger: 處理log的格式化與分級輸出相關邏輯
-pagination: 定義分頁相關邏輯、計算 PageOffset、PageSize
+- convert: 統一的字元轉換處理工具 ex: str to uint32、str to int
+- email: 處理email與SMTP Server相關互動邏輯
+- errcode: 這裡定義error的處理方式與業務邏輯錯誤的定義
+- logger: 處理log的格式化與分級輸出相關邏輯
+- pagination: 定義分頁相關邏輯、計算 PageOffset、PageSize
 
 
 
 ## 基礎建設
-Mysql
-Redis
-SMTP Server
+- Mysql
+- Redis
+- SMTP Server
 
 configs/config.yaml
 ```
