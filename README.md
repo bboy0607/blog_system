@@ -40,67 +40,80 @@
 
 configs/config.yaml
 ```
-# Configuration for the server
+# 伺服器設定檔
 Server: 
   # Run mode: "debug" or "release"
   RunMode: release
-  # Address to listen on
+  # 監聽地址
   ListenAddr: 127.0.0.1
-  # HTTP port to listen on
+  # 監聽的HTTP Port
   HttpPort: 8080
   # Read timeout for incoming requests
   ReadTimeout: 60
   # Write timeout for outgoing responses
   WriteTimeout: 60
 
-# Configuration for the application
+# 應用程式設定檔
 App:
-  # Default page size for pagination
+  # 設定預設 PageSize
   DefaultPageSize: 10
-  # Maximum page size for pagination
+  # 設定最大 PageSize
   MaxPageSize: 100
-  # Path to save log files
+  # 存放 Log 的位置
   LogSavePath: storage/logs
-  # Log file name
+  # Log 的名稱
   LogFileName: app
-  # Log file extension
+  # Log 的副檔名
   LogFileExt: .log
+    # 檔案上傳位置
+  UploadSavePath: storage/uploads
+  # 上傳檔案伺服器URL
+  UploadServerURL: http://127.0.0.1:8080/static
+  # 上傳圖片單檔大小限制: MB
+  UploadImageMaxSize: 5
+  # 多檔上傳圖片總檔案大小限制: Byte
+  UploadMultiImageTotalMaxSize: 10485760
+  # 上傳圖片允許的副檔名
+  UploadImageAllowExts:
+    - .jpg
+    - .jpeeg
+    - .png
 
 # Configuration for the database
 Database:
-  # Type of database (e.g., "mysql", "postgres")
+  # 資料庫類型 (e.g., "mysql", "postgres")
   DBType: mysql
-  # Username for database connection
-  Username:
-  # Password for database connection
-  Password:
-  # Host of the database server
-  Host:
-  # Name of the database
-  DBName:
-  # Prefix for table names
-  TablePrefix:
-  # Character set for the database
+  # 資料庫使用者名稱
+  Username: 
+  # 資料庫密碼
+  Password: 
+  # 資料庫的 Host
+  Host: 127.0.0.1:3306
+  # 資料庫名稱
+  DBName: membership_system
+  # 資料表的 Prefix 
+  TablePrefix: blog_
+  # 資料庫 Character set 設定
   Charset: utf8
-  # Parse time option for database connection
+  # 是否啟動資料庫的ParseTime選項
   ParseTime: true
-  # Maximum idle connections
+  # 最大閒置連線數
   MaxIdleConns: 10
-  # Maximum open connections
+  # 最大連線數
   MaxOpenConns: 30
 
 #SMTP資訊
 Email:
   Host: 
-  Port:
+  Port: 
   UserName: 
   Password: 
-  IsSSL: true
+  IsSSL: 
   From: 
   To: 
 
 #Redis資訊
 Redis:
-  Host: 127.0.0.1
-  Port: 6379
+  Host: 
+  Port: 
 ```

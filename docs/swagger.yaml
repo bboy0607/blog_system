@@ -10,6 +10,10 @@ definitions:
       msg:
         type: string
     type: object
+  gin.H:
+    additionalProperties:
+      $ref: '#/definitions/gin.any'
+    type: object
   model.User:
     properties:
       created_by:
@@ -35,13 +39,164 @@ definitions:
       username:
         type: string
     type: object
+  model.UserInfo:
+    properties:
+      created_by:
+        type: string
+      created_on:
+        type: integer
+      deleted_on:
+        type: integer
+      gender:
+        type: string
+      id:
+        type: integer
+      is_del:
+        type: integer
+      modified_by:
+        type: string
+      modified_on:
+        type: integer
+      nickname:
+        type: string
+      user_id:
+        type: string
+    type: object
 info:
   contact: {}
   license: {}
   title: 會員系統
   version: "0.6"
 paths:
-  /api/v1/users:
+  /api/v1/users/info:
+    post:
+      consumes:
+      - application/json
+      description: 創建使用者資訊
+      parameters:
+      - description: 使用者ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: 暱稱
+        in: formData
+        name: nickname
+        required: true
+        type: string
+      - description: 性別
+        in: formData
+        name: gender
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 'message": "使用者資訊建立成功"}'
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: 參數錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 創建使用者資訊
+      tags:
+      - Users
+  /api/v1/users/info/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 取得特定使用者的詳細資訊
+      parameters:
+      - description: 使用者ID
+        format: int64
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/model.UserInfo'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 取得使用者資訊
+      tags:
+      - 使用者
+  /api/v1/users/login:
+    post:
+      consumes:
+      - application/json
+      description: 使用者登入
+      parameters:
+      - description: 使用者帳號
+        in: formData
+        name: username
+        required: true
+        type: string
+      - description: 使用者密碼
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "401":
+          description: 使用者未找到、密碼不正確、使用者未啟用等錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 使用者登入
+  /api/v1/users/logout:
+    get:
+      description: 使用者登出
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "401":
+          description: 使用者已登出等錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 使用者登出
+  /api/v1/users/register:
     post:
       parameters:
       - description: 使用者帳號
@@ -64,14 +219,6 @@ paths:
         name: email
         required: true
         type: string
-      - default: 1
-        description: 使用者狀態
-        enum:
-        - 0
-        - 1
-        in: query
-        name: state
-        type: integer
       - description: 建立者
         in: query
         maxLength: 100
@@ -94,5 +241,86 @@ paths:
           description: 內部錯誤
           schema:
             $ref: '#/definitions/errcode.Error'
-      summary: 創建帳號
+      summary: 註冊需email認證帳號
+  /api/v1/users/reset_password:
+    post:
+      consumes:
+      - application/json
+      description: 重置使用者密碼
+      parameters:
+      - description: 新密碼
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 重置使用者密碼
+  /api/v1/users/reset_password_email:
+    post:
+      consumes:
+      - application/json
+      description: 發送重置密碼的Email
+      parameters:
+      - description: 用戶Email
+        in: formData
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 發送重置密碼的Email
+  /api/v1/users/verify_email/{token}:
+    get:
+      consumes:
+      - application/json
+      description: 驗證使用者帳戶Email
+      parameters:
+      - description: email驗證token
+        in: query
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: 請求錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+        "500":
+          description: 內部錯誤
+          schema:
+            $ref: '#/definitions/errcode.Error'
+      summary: 驗證使用者帳戶Email
 swagger: "2.0"

@@ -39,14 +39,14 @@ func (u User) Create(c *gin.Context) {
 
 // @Summary 註冊需email認證帳號
 // @Produce json
-// @Param username query string true "使用者帳號" minlength(3) maxlength(100)
-// @Param password query string true "使用者密碼" minlength(6) maxlength(100)
-// @Param email query string true "使用者Email" format(email)
-// @Param created_by query string true "建立者" minlength(3) maxlength(100)
+// @Param username formData string true "使用者帳號" minlength(3) maxlength(100)
+// @Param password formData string true "使用者密碼" minlength(6) maxlength(100)
+// @Param email formData string true "使用者Email" format(email)
+// @Param created_by formData string true "建立者" minlength(3) maxlength(100)
 // @Success 200 {object} model.User "成功"
 // @Failure 400 {object} errcode.Error "請求錯誤"
 // @Failure 500 {object} errcode.Error "內部錯誤"
-// @Router /api/v1/users [post]
+// @Router /api/v1/users/register [post]
 func (u User) CreateEmailConfirmUser(c *gin.Context) {
 	param := service.CreateEmailConfirmUserRequest{}
 	response := app.NewResponse(c)
@@ -69,16 +69,16 @@ func (u User) CreateEmailConfirmUser(c *gin.Context) {
 	return
 }
 
-// @Summary 驗證Email，如果成功，啟動帳號 (state = 1)
+// ActivateEmailConfirmUser 驗證使用者帳戶Email
+// @Summary 驗證使用者帳戶Email
+// @Description 驗證使用者帳戶Email
+// @Accept json
 // @Produce json
-// @Param username query string true "使用者帳號" minlength(3) maxlength(100)
-// @Param password query string true "使用者密碼" minlength(6) maxlength(100)
-// @Param email query string true "使用者Email" format(email)
-// @Param created_by query string true "建立者" minlength(3) maxlength(100)
+// @Param token query string true "email驗證token"
 // @Success 200 {object} model.User "成功"
 // @Failure 400 {object} errcode.Error "請求錯誤"
 // @Failure 500 {object} errcode.Error "內部錯誤"
-// @Router /api/v1/users [post]
+// @Router /api/v1/users/verify_email/{token} [get]
 func (u User) ActivateEmailConfirmUser(c *gin.Context) {
 	param := service.ActivateUserRequest{
 		Token: c.Param("token"),
@@ -105,6 +105,16 @@ func (u User) ActivateEmailConfirmUser(c *gin.Context) {
 	return
 }
 
+// SendResetPasswordEmail 發送重置密碼的Email
+// @Summary 發送重置密碼的Email
+// @Description 發送重置密碼的Email
+// @Accept json
+// @Produce json
+// @Param email formData string true "用戶Email"
+// @Success 200 {object} gin.H "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users/reset_password_email [post]
 func (u User) SendResetPasswordEmail(c *gin.Context) {
 	param := service.SendResetPasswordEmail{}
 	response := app.NewResponse(c)
@@ -128,6 +138,16 @@ func (u User) SendResetPasswordEmail(c *gin.Context) {
 	return
 }
 
+// ResetPassword 重置使用者密碼
+// @Summary 重置使用者密碼
+// @Description 重置使用者密碼
+// @Accept json
+// @Produce json
+// @Param password formData string true "新密碼"
+// @Success 200 {object} gin.H "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users/reset_password [post]
 func (u User) ResetPassword(c *gin.Context) {
 	param := service.ResetUserPasswordRequest{}
 	response := app.NewResponse(c)
@@ -161,7 +181,18 @@ func (u User) ResetPassword(c *gin.Context) {
 	return
 }
 
-// 登入
+// Login 使用者登入
+// @Summary 使用者登入
+// @Description 使用者登入
+// @Accept json
+// @Produce json
+// @Param username formData string true "使用者帳號"
+// @Param password formData string true "使用者密碼"
+// @Success 200 {object} gin.H "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 401 {object} errcode.Error "使用者未找到、密碼不正確、使用者未啟用等錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users/login [post]
 func (u User) Login(c *gin.Context) {
 	param := service.UserLoginRequest{}
 	response := app.NewResponse(c)
@@ -194,8 +225,15 @@ func (u User) Login(c *gin.Context) {
 	return
 }
 
-//登出
-
+// Logout 使用者登出
+// @Summary 使用者登出
+// @Description 使用者登出
+// @Produce json
+// @Success 200 {object} gin.H "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 401 {object} errcode.Error "使用者已登出等錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users/logout [get]
 func (u User) Logout(c *gin.Context) {
 	param := service.UserLogoutRequest{}
 	response := app.NewResponse(c)
@@ -220,6 +258,18 @@ func (u User) Logout(c *gin.Context) {
 	return
 }
 
+// @Summary 創建使用者資訊
+// @Description 創建使用者資訊
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param user_id formData string true "使用者ID"
+// @Param nickname formData string true "暱稱"
+// @Param gender formData string true "性別"
+// @Success 200 {object} gin.H{"message": "使用者資訊建立成功"}
+// @Failure 400 {object}  errcode.Error "參數錯誤"
+// @Failure 500 {object}  errcode.Error "內部錯誤"
+// @Router /api/v1/users/info [post]
 func (u User) CreateUserInfo(c *gin.Context) {
 	param := service.CreateUserInfoRequest{}
 	response := app.NewResponse(c)
@@ -242,6 +292,16 @@ func (u User) CreateUserInfo(c *gin.Context) {
 	return
 }
 
+// @Summary 取得使用者資訊
+// @Description 取得特定使用者的詳細資訊
+// @Tags 使用者
+// @Accept json
+// @Produce json
+// @Param id path int true "使用者ID" Format(int64)
+// @Success 200 {object} model.UserInfo "成功"
+// @Failure 400 {object} errcode.Error "請求錯誤"
+// @Failure 500 {object} errcode.Error "內部錯誤"
+// @Router /api/v1/users/info/{id} [get]
 func (u User) GetUserInfo(c *gin.Context) {
 	param := service.GetUserInfoRequest{}
 	response := app.NewResponse(c)
