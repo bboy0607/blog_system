@@ -1,12 +1,11 @@
 package routers
 
 import (
+	_ "membership_system/docs"
 	"membership_system/global"
 	"membership_system/internal/middleware"
 	v1 "membership_system/internal/routers/api/v1"
 	"net/http"
-
-	_ "membership_system/docs"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
@@ -31,18 +30,15 @@ func NewRoute() *gin.Engine {
 	r.POST("/upload", upload.UploadMultipleFiles)
 
 	user := v1.NewUser()
-	//使用者登入
-	r.POST("/login", user.Login)
-	//使用者登出
-	r.GET("/logout", user.Logout)
 
+	//使用者操作相關路由
 	userApi := r.Group("/api/v1/users")
 	{
 		//使用者登入
-		//userApi.POST("login", user.Login)
+		userApi.POST("login", user.Login)
 
 		//使用者登出
-		//userApi.GET("logout", user.Logout)
+		userApi.GET("logout", user.Logout)
 
 		//註冊會員
 		userApi.POST("register", user.CreateEmailConfirmUser)
@@ -52,12 +48,17 @@ func NewRoute() *gin.Engine {
 		userApi.POST("reset_password", user.SendResetPasswordEmail)
 		userApi.GET("reset_password/:token", middleware.ValidatePasswordResetToken(), func(c *gin.Context) { c.HTML(http.StatusOK, "reset_password.html", nil) })
 		userApi.POST("reset_password/:token", middleware.ValidatePasswordResetToken(), user.ResetPassword)
+	}
 
+	//使用者資訊相關路由
+	userInfoApi := r.Group("/api/v1/users/info")
+	userInfoApi.Use(sessions.Sessions("session", store))
+	{
 		//建立使用者資訊
-		userApi.POST("info", user.CreateUserInfo)
+		userInfoApi.POST("info", user.CreateUserInfo)
 
 		//使用登入Token接收會員資料
-		userApi.GET("info", middleware.ValidateLoginToken(), user.GetUserInfo)
+		userInfoApi.GET("info", middleware.ValidateLoginToken(), user.GetUserInfo)
 	}
 
 	tag := v1.NewTag()
@@ -77,11 +78,11 @@ func NewRoute() *gin.Engine {
 
 	}
 
+	//文章相關路由
 	article := v1.NewArticle()
 	articleApi := r.Group("/api/v1/articles")
+	articleApi.Use(middleware.ValidateSessionID())
 	{
-		articleApi.Use(middleware.ValidateSessionID())
-
 		//新增文章
 		articleApi.POST("", article.Create)
 
@@ -99,8 +100,10 @@ func NewRoute() *gin.Engine {
 
 	}
 
+	//文章評論相關路由
 	articleComment := v1.NewArticleComment()
 	articleCommentApi := r.Group("/api/v1/article_comments")
+	articleCommentApi.Use(middleware.ValidateSessionID())
 	{
 		articleCommentApi.POST("/", articleComment.Create)
 
