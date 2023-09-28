@@ -1,5 +1,42 @@
 # membership_system
-後端會員系統
+後端部落格系統
+
+# 產品業務功能
+##  會員系統
+- 會員註冊
+- 登入
+- 登出
+- 忘記密碼
+
+## 文章管理
+- 新增文章
+- 查詢文章清單
+- 取得指定文章
+- 更新文章
+- 刪除文章
+  
+## 標籤管理
+- 新增標籤
+- 查詢標籤清單
+- 更新標籤
+- 刪除標籤
+
+## 其他功能
+- 多圖片上傳
+
+## 內部公共元件
+- convert: 統一的字元轉換處理工具 ex: str to uint32、str to int
+- email: 處理email與SMTP Server相關互動邏輯
+- errcode: 這裡定義error的處理方式與業務邏輯錯誤的定義
+- logger: 處理log的格式化與分級輸出相關邏輯
+- pagination: 定義分頁相關邏輯、計算 PageOffset、PageSize
+
+
+
+## 基礎建設
+- Mysql
+- Redis
+- SMTP Server
 
 configs/config.yaml
 ```
